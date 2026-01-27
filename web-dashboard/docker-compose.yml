@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  call-logger-web:
+    build: .
+    image: call-logger-web:latest
+    container_name: call-logger-web
+    restart: unless-stopped
+    # No exposed ports needed for Traefik, but good for local debug if strictly needed. 
+    # Traefik communicates via the Docker network.
+    deploy:
+      mode: replicated
+      replicas: 1
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.calllogger.rule=Host(`calllogger.gera-leads.com`)"
+        - "traefik.http.routers.calllogger.entrypoints=websecure"
+        - "traefik.http.routers.calllogger.tls.certresolver=letsencryptresolver"
+        - "traefik.http.services.calllogger.loadbalancer.server.port=3000"
+        - "traefik.docker.network=Portainer"
+    environment:
+      DATABASE_URL: file:/app/db/prod.db
+      NODE_ENV: production
+    volumes:
+      - ./db:/app/db
+    networks:
+      - Portainer
+
+networks:
+  Portainer:
+    external: true
