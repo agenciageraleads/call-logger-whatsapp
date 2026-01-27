@@ -52,7 +52,8 @@ export async function GET() {
       include: { device: true }
     });
     return NextResponse.json({ logs });
-  } catch (error) {
-    return NextResponse.json({ error: 'Error fetching logs' }, { status: 500 });
+  } catch (error: any) {
+    console.error('Error fetching logs:', error);
+    return NextResponse.json({ error: 'Error fetching logs', details: error.message }, { status: 500 });
   }
 }
