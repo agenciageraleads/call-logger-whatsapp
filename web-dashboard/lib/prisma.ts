@@ -3,10 +3,16 @@ import { PrismaClient } from '@prisma/client';
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
-// In Prisma 7 with configuration file, connection string is handled by the config.
-// We instantiate PrismaClient without arguments, it will load configuration.
+// Explicit datasource configuration for build time
 export const prisma =
     globalForPrisma.prisma ||
-    new PrismaClient();
+    new PrismaClient({
+        datasources: {
+            db: {
+                url: process.env.DATABASE_URL || 'file:./dev.db'
+            }
+        }
+    });
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+
