@@ -1,9 +1,11 @@
-
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
   output: "standalone",
+  experimental: {
+    // Disable static page generation - force all routes dynamic
+    dynamicIO: true,
+  },
 };
 
 export default nextConfig;
