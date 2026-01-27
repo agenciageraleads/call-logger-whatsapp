@@ -45,6 +45,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # Copy Prisma schema for migrations
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
+# Copy deploy script
+COPY --from=builder --chown=nextjs:nodejs /app/deploy.sh ./deploy.sh
+RUN chmod +x deploy.sh
 
 USER nextjs
 
@@ -53,5 +56,6 @@ EXPOSE 3000
 ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
-# Start the server directly (no deploy script needed for SQLite)
-CMD ["node", "server.js"]
+# Run migrations and start server
+CMD ["./deploy.sh"]
+
