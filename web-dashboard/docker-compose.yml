@@ -2,8 +2,8 @@ version: '3.8'
 
 services:
   call-logger-web:
-    build: .
-    image: call-logger-web:latest
+    # build: .  <-- Removed build, using pre-built image
+    image: ${DOCKER_USERNAME}/whatsapp-call-logger:latest
     container_name: call-logger-web
     restart: unless-stopped
     # No exposed ports needed for Traefik, but good for local debug if strictly needed. 
