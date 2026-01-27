@@ -1,9 +1,10 @@
 FROM node:20-alpine AS base
 
+# Install essential libraries in base for Prisma and Next.js
+RUN apk add --no-cache libc6-compat openssl
+
 # Install dependencies only when needed
 FROM base AS deps
-# libc6-compat and openssl for Prisma
-RUN apk add --no-cache libc6-compat openssl
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
@@ -26,9 +27,6 @@ RUN npm run build
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
-
-# Install openssl for Prisma runtime
-RUN apk add --no-cache openssl
 
 ENV NODE_ENV=production
 
