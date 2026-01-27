@@ -34,6 +34,9 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# Create data directory for SQLite persistence and set permissions
+RUN mkdir -p /data && chown nextjs:nodejs /data
+
 COPY --from=builder /app/public ./public
 
 # Set the correct permission for prerender cache
