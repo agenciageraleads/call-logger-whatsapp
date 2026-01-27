@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 
-const prisma = new PrismaClient();
+// Force this route to be dynamic (runtime-only)
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 
 export async function POST(request: Request) {
   try {
@@ -42,14 +45,14 @@ export async function POST(request: Request) {
 }
 
 export async function GET() {
-   try {
-     const logs = await prisma.callLog.findMany({
-       orderBy: { timestamp: 'desc' },
-       take: 100,
-       include: { device: true }
-     });
-     return NextResponse.json({ logs });
-   } catch (error) {
-     return NextResponse.json({ error: 'Error fetching logs' }, { status: 500 });
-   }
+  try {
+    const logs = await prisma.callLog.findMany({
+      orderBy: { timestamp: 'desc' },
+      take: 100,
+      include: { device: true }
+    });
+    return NextResponse.json({ logs });
+  } catch (error) {
+    return NextResponse.json({ error: 'Error fetching logs' }, { status: 500 });
+  }
 }
