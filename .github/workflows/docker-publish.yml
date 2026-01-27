@@ -17,7 +17,7 @@ jobs:
     - name: Log in to Docker Hub
       uses: docker/login-action@v2
       with:
-        username: ${{ secrets.DOCKER_USERNAME }}
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
     - name: Build and push Docker image
@@ -25,4 +25,4 @@ jobs:
       with:
         context: ./web-dashboard
         push: true
-        tags: ${{ secrets.DOCKER_USERNAME }}/whatsapp-call-logger:latest
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/whatsapp-call-logger:latest
