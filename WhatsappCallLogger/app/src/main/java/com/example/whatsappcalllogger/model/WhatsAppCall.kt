@@ -1,4 +1,4 @@
-package com.example.whatsappcalllogger
+package com.example.whatsappcalllogger.model
 
 enum class WhatsAppCallType {
     INCOMING,

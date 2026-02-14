@@ -1,18 +1,23 @@
 package com.example.whatsappcalllogger
 
-import android.app.Person
-import android.content.Intent
-import android.provider.Settings
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
+import android.app.Person
+import android.app.Notification
+import android.content.Intent
 import android.util.Log
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
-import com.example.whatsappcalllogger.network.LogRequest
-import com.example.whatsappcalllogger.network.LogResponse
-import com.example.whatsappcalllogger.network.RetrofitClient
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.example.whatsappcalllogger.model.WhatsAppCall
+import com.example.whatsappcalllogger.model.WhatsAppCallType
+import com.example.whatsappcalllogger.model.CallStatus
+import com.example.whatsappcalllogger.data.AppDatabase
+import com.example.whatsappcalllogger.data.CallLogEntity
+import com.example.whatsappcalllogger.workers.SyncWorker
+import androidx.work.OneTimeWorkRequest
+import androidx.work.WorkManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class AppNotificationService : NotificationListenerService() {
 
@@ -28,48 +33,49 @@ class AppNotificationService : NotificationListenerService() {
             val notification = sbn.notification
             val extras = notification?.extras
             
+            // Check for call style notification or specific extras
+            // Note: WhatsApp call notifications can be tricky. This logic depends on specific extras.
+            
             val callTypeInt = extras?.getInt("android.callType")
             
-            if (callTypeInt == null || callTypeInt == 0) {
-                 return
-            }
-
-            val callType = if (callTypeInt == 1) WhatsAppCallType.INCOMING else WhatsAppCallType.OUTGOING
-            val callPerson = extras.get("android.callPerson")
-            val supplier = extras.get("android.people.list")
-            
-            var personName = "Unknown"
-            
-            if (callPerson != null && callPerson is Person) {
-                personName = callPerson.name?.toString() ?: "Unknown"
-            } else if (supplier != null && supplier is ArrayList<*> && supplier.isNotEmpty()) {
-                 val p = supplier[0] as? Person
-                 if (p != null) {
-                     personName = p.name?.toString() ?: "Unknown"
+            // If callTypeInt is present, it's a call notification attempt
+            if (callTypeInt != null && callTypeInt != 0) {
+                 val callType = if (callTypeInt == 1) WhatsAppCallType.INCOMING else WhatsAppCallType.OUTGOING
+                 
+                 var personName = "Unknown"
+                 val callPerson = extras.get("android.callPerson")
+                 // Also try android.title or others if needed
+                 
+                 if (callPerson != null && callPerson is Person) {
+                    personName = callPerson.name?.toString() ?: "Unknown"
+                 } else {
+                     personName = extras.getString(Notification.EXTRA_TITLE) ?: "Unknown"
                  }
-            }
 
-            Log.d("AppNotificationService", "Detected: $personName - $callType")
+                 Log.d("AppNotificationService", "Detected Call: $personName - $callType")
 
-            if (onGoingCall == null) {
-                onGoingCall = WhatsAppCall(
-                    id = sbn.id,
-                    callType = callType,
-                    callPerson = personName,
-                    phoneNumber = "",
-                    callTime = System.currentTimeMillis(),
-                    callDuration = 0
-                )
-            } else {
-                 onGoingCall = onGoingCall?.copy(callPerson = personName)
+                 if (onGoingCall == null) {
+                    onGoingCall = WhatsAppCall(
+                        id = sbn.id,
+                        callType = callType,
+                        callPerson = personName,
+                        phoneNumber = "",
+                        callTime = System.currentTimeMillis(),
+                        callDuration = 0
+                    )
+                 }
             }
         }
     }
 
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
         if (sbn?.packageName == "com.whatsapp") {
+             // Check if this matches our ongoing call ID or just assume ongoing call ended if whatsapp notification removed
+             // Better logic: match ID. But for now, simple check.
+             
              val currentCall = onGoingCall
-             if (currentCall != null) {
+             if (currentCall != null && sbn.id == currentCall.id) {
+                 // Calculate duration
                  val endTime = System.currentTimeMillis()
                  val duration = (endTime - currentCall.callTime) / 1000
                  val finalStatus = if (duration > 0) CallStatus.RECEIVED else CallStatus.MISSED
@@ -84,8 +90,8 @@ class AppNotificationService : NotificationListenerService() {
                  // 1. Broadcast to UI
                  broadcastCallLog(finalCall)
                  
-                 // 2. Send to Server
-                 sendToServer(finalCall)
+                 // 2. Save to Room & Trigger Sync
+                 saveAndSync(finalCall)
                  
                  onGoingCall = null
              }
@@ -102,30 +108,24 @@ class AppNotificationService : NotificationListenerService() {
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
     }
 
-    private fun sendToServer(call: WhatsAppCall) {
-        val deviceId = Settings.Secure.getString(contentResolver, Settings.Secure.ANDROID_ID) ?: "unknown_device"
-        
-        val request = LogRequest(
-            deviceId = deviceId,
-            contactName = call.callPerson,
-            duration = call.callDuration,
-            type = call.callType.name,
-            status = call.callStatus.name,
-            timestamp = call.callTime
-        )
-
-        RetrofitClient.instance.sendLog(request).enqueue(object : Callback<LogResponse> {
-            override fun onResponse(call: Call<LogResponse>, response: Response<LogResponse>) {
-                if (response.isSuccessful) {
-                    Log.d("AppNotificationService", "Log sent successfully: ${response.body()?.logId}")
-                } else {
-                    Log.e("AppNotificationService", "Failed to send log: ${response.code()}")
-                }
-            }
-
-            override fun onFailure(call: Call<LogResponse>, t: Throwable) {
-                Log.e("AppNotificationService", "Network Error", t)
-            }
-        })
+    private fun saveAndSync(call: WhatsAppCall) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val database = AppDatabase.getDatabase(applicationContext)
+            
+            val entity = CallLogEntity(
+                callPerson = call.callPerson,
+                callDuration = call.callDuration,
+                callType = call.callType.name,
+                callStatus = call.callStatus.name,
+                callTime = call.callTime,
+                isSynced = false
+            )
+            
+            database.callLogDao().insert(entity)
+            Log.d("AppNotificationService", "Log saved to Room. Triggering Worker.")
+            
+            val syncRequest = OneTimeWorkRequest.Builder(SyncWorker::class.java).build()
+            WorkManager.getInstance(applicationContext).enqueue(syncRequest)
+        }
     }
 }

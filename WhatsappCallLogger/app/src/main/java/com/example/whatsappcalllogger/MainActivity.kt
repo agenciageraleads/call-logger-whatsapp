@@ -13,6 +13,9 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -20,6 +23,7 @@ import java.util.Locale
 class MainActivity : AppCompatActivity() {
 
     private lateinit var btnPermission: Button
+    private lateinit var btnTest: Button
     private lateinit var tvStatus: TextView
     private lateinit var tvLogs: TextView
 
@@ -47,11 +51,16 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         btnPermission = findViewById(R.id.btnPermission)
+        btnTest = findViewById(R.id.btnTest)
         tvStatus = findViewById(R.id.tvStatus)
         tvLogs = findViewById(R.id.tvLogs)
 
         btnPermission.setOnClickListener {
             startActivity(Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS))
+        }
+
+        btnTest.setOnClickListener {
+            sendTestLog()
         }
 
         LocalBroadcastManager.getInstance(this).registerReceiver(
@@ -105,6 +114,48 @@ class MainActivity : AppCompatActivity() {
             tvLogs.text = text
         } else {
             tvLogs.text = text + currentText
+        }
+    }
+
+    private fun sendTestLog() {
+        // Create a test call object
+        val testCall = com.example.whatsappcalllogger.model.WhatsAppCall(
+            id = 0,
+            callType = com.example.whatsappcalllogger.model.WhatsAppCallType.INCOMING,
+            callPerson = "Teste Conexão Manual",
+            phoneNumber = "000000",
+            callTime = System.currentTimeMillis(),
+            callDuration = 15, // 15 seconds
+            callStatus = com.example.whatsappcalllogger.model.CallStatus.RECEIVED
+        )
+
+        tvStatus.text = "Status: Salvando e Sincronizando..."
+        
+        // Use Coroutine to save to Room and trigger Worker manually for test
+        CoroutineScope(Dispatchers.IO).launch {
+            val database = com.example.whatsappcalllogger.data.AppDatabase.getDatabase(applicationContext)
+            
+            val entity = com.example.whatsappcalllogger.data.CallLogEntity(
+                callPerson = testCall.callPerson,
+                callDuration = testCall.callDuration,
+                callType = testCall.callType.name,
+                callStatus = testCall.callStatus.name,
+                callTime = testCall.callTime,
+                isSynced = false
+            )
+            
+            database.callLogDao().insert(entity)
+            
+            val syncRequest = androidx.work.OneTimeWorkRequest.Builder(com.example.whatsappcalllogger.workers.SyncWorker::class.java).build()
+            androidx.work.WorkManager.getInstance(applicationContext).enqueue(syncRequest)
+            
+            runOnUiThread {
+                android.widget.Toast.makeText(this@MainActivity, "Salvo e agendado!", android.widget.Toast.LENGTH_SHORT).show()
+                appendLog("[TESTE] Salvo no banco local e worker disparado.\n----------------\n")
+                checkPermission()
+                tvStatus.text = "Status: Sincronização Iniciada"
+                tvStatus.setTextColor(resources.getColor(android.R.color.holo_green_dark, theme))
+            }
         }
     }
 }

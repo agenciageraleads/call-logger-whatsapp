@@ -4,6 +4,8 @@
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+  // Avoid reliance on node_modules/.prisma in Next/Turbopack; generate into app tree.
+  output        = "../app/generated/prisma"
 }
 
 datasource db {
@@ -12,11 +14,13 @@ datasource db {
 }
 
 model Device {
-  id        String    @id @default(cuid())
+  id        String    @id
   name      String?
+  lastSeen  DateTime?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   calls     CallLog[]
+  evolutionInstance EvolutionInstance?
 }
 
 model CallLog {
@@ -34,4 +38,94 @@ model CallLog {
   device    Device   @relation(fields: [deviceId], references: [id])
   
   createdAt DateTime @default(now())
+}
+
+// Configuração da Instância na Evolution API (WhatsApp)
+model EvolutionInstance {
+  id          String   @id @default(cuid())
+  name        String   // Nome amigável (ex: "Vendas 01")
+  instanceId  String   @unique // ID da instância na Evolution API
+  apiKey      String?  // Token da Evolution (Opcional)
+  endpointUrl String?  // URL base da Evolution (Opcional)
+  webhookSecret String? // Segredo nosso para validar webhooks (não é o token da Evolution)
+
+  // Relacionamento com o Dispositivo Android (1:1)
+  deviceId    String?  @unique
+  device      Device?  @relation(fields: [deviceId], references: [id])
+
+  // Relacionamento com Métricas Diárias
+  metrics     DailyMetric[]
+  contacts    Contact[]
+  conversations DailyConversation[]
+  processedMessages ProcessedMessage[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Tabela Agregada de Métricas por Dia (Monitoramento Unificado)
+model DailyMetric {
+  id        String   @id @default(cuid())
+  date      DateTime // Data do registro (Dia/Mês/Ano zerado)
+
+  instanceId String
+  instance   EvolutionInstance @relation(fields: [instanceId], references: [id])
+
+  // --- Métricas de WhatsApp (Vindo da Evolution API) ---
+  activeConversations Int @default(0) // Conversas com troca de msg no dia
+  newContacts         Int @default(0) // Novos contatos iniciados
+  messagesSent        Int @default(0) // Total de msgs enviadas
+  messagesReceived    Int @default(0) // Total de msgs recebidas
+
+  // --- Métricas de Chamadas (Vindo do App Android) ---
+  callsMade     Int @default(0) // Chamadas realizadas
+  callsReceived Int @default(0) // Chamadas recebidas
+  callDuration  Int @default(0) // Tempo total em segundos
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([date, instanceId]) // Garante apenas um registro por dia para cada instância
+}
+
+// Contatos conhecidos por instancia (para "novos contatos")
+model Contact {
+  id         String   @id @default(cuid())
+  instanceId String
+  instance   EvolutionInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+
+  jid        String
+  firstSeen  DateTime @default(now())
+
+  @@unique([instanceId, jid])
+}
+
+// Dedupe por dia + instancia + jid (para "conversas ativas")
+model DailyConversation {
+  id         String   @id @default(cuid())
+  date       DateTime
+
+  instanceId String
+  instance   EvolutionInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+
+  jid        String
+  createdAt  DateTime @default(now())
+
+  @@unique([date, instanceId, jid])
+}
+
+// Mensagens ja processadas via webhook (para idempotencia)
+model ProcessedMessage {
+  id         String   @id @default(cuid())
+  instanceId String
+  instance   EvolutionInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+
+  messageId  String
+  jid        String
+  direction  String   // SENT | RECEIVED
+  timestamp  DateTime
+
+  createdAt  DateTime @default(now())
+
+  @@unique([instanceId, messageId])
 }

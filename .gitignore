@@ -18,9 +18,13 @@ node_modules/
 out/
 build/
 dist/
-.env
+.env*
 *.pem
 
 # Database
 *.db
 *.db-journal
+
+# Playwright CLI artifacts
+web-dashboard/.playwright-cli/
+web-dashboard/output/playwright/

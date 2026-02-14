@@ -6,7 +6,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    private const val BASE_URL = "http://192.168.1.100:3000" // CHANGE THIS TO YOUR PC IP
+    private const val BASE_URL = "http://10.100.1.72:3000/" // IP Local do Computador (Porta 3000 do Next.js)
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY

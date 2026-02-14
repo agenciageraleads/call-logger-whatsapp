@@ -22,6 +22,14 @@
         android:backgroundTint="#FF5722"
         android:visibility="gone"/>
 
+    <Button
+        android:id="@+id/btnTest"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Enviar Log de Teste"
+        android:backgroundTint="#4CAF50"
+        android:layout_marginTop="8dp"/>
+
     <TextView
         android:id="@+id/tvStatus"
         android:layout_width="wrap_content"
