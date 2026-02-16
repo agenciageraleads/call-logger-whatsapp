@@ -1,4 +1,4 @@
-import { createInstance, getDevices, getInstances, linkDeviceToInstance, provisionEvolutionInstance, unlinkDevice } from './actions';
+import { createInstance, deleteInstance, getDevices, getInstances, linkDeviceToInstance, logoutInstance, provisionEvolutionInstance, unlinkDevice } from './actions';
 import SettingsPageClient from './client-page';
 
 export const dynamic = 'force-dynamic';
@@ -15,6 +15,8 @@ export default async function Page() {
             linkDeviceToInstance={linkDeviceToInstance}
             provisionEvolutionInstance={provisionEvolutionInstance}
             unlinkDevice={unlinkDevice}
+            logoutInstance={logoutInstance}
+            deleteInstance={deleteInstance}
         />
     );
 }

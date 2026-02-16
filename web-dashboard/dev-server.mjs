@@ -1,7 +1,7 @@
 import http from "node:http";
 import { URL } from "node:url";
 import crypto from "node:crypto";
-import prismaPkg from "./app/generated/prisma/index.js";
+import prismaPkg from "./lib/generated/prisma/index.js";
 
 const { PrismaClient } = prismaPkg;
 const prisma = new PrismaClient();
@@ -402,7 +402,7 @@ const server = http.createServer(async (req, res) => {
             headers: { apikey: String(apiKey), "content-type": "application/json" },
             body: JSON.stringify({ instanceName: String(instanceId), integration: "WHATSAPP-BAILEYS" }),
           });
-        } catch {}
+        } catch { }
 
         try {
           await fetch(`${evoBase}/webhook/set/${encodeURIComponent(String(instanceId))}`, {
@@ -419,7 +419,7 @@ const server = http.createServer(async (req, res) => {
               },
             }),
           });
-        } catch {}
+        } catch { }
       }
 
       return sendJson(res, 200, { status: "success", instance });

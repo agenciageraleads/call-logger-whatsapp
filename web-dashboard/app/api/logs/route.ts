@@ -90,8 +90,8 @@ export async function GET() {
       include: { device: true }
     });
     return NextResponse.json({ logs });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error fetching logs:', error);
-    return NextResponse.json({ error: 'Error fetching logs', details: error.message }, { status: 500 });
+    return NextResponse.json({ error: 'Error fetching logs', details: (error as Error).message }, { status: 500 });
   }
 }

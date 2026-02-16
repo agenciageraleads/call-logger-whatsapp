@@ -2,7 +2,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
-import { connectEvolutionInstance, createEvolutionInstance, setEvolutionWebhook } from '@/lib/evolution';
+import { connectEvolutionInstance, createEvolutionInstance, logoutEvolutionInstance, setEvolutionWebhook } from '@/lib/evolution';
 import crypto from 'crypto';
 
 function newWebhookSecret() {
@@ -30,30 +30,28 @@ export async function getInstances() {
 
 export async function createInstance(data: FormData) {
     const name = data.get('name') as string;
-    const instanceId = data.get('instanceId') as string;
-    const endpointUrlInput = ((data.get('endpointUrl') as string) || '').trim();
-    const apiKeyInput = ((data.get('apiKey') as string) || '').trim();
+    let instanceId = data.get('instanceId') as string;
+    const phoneNumber = data.get('phoneNumber') as string;
 
-    if (!name || !instanceId) {
-        throw new Error('Nome e ID da instância são obrigatórios');
+    if (!name) {
+        throw new Error('O nome é obrigatório');
     }
 
-    const existing = await prisma.evolutionInstance.findUnique({ where: { instanceId } });
+    // Se não tiver ID, gera um baseado no nome e timestamp
+    if (!instanceId) {
+        instanceId = name.toLowerCase()
+            .normalize("NFD").replace(/[\u0300-\u036f]/g, "") // remove acentos
+            .replace(/[^a-z0-9]/g, '_') // remove especiais
+            + '_' + Math.floor(Math.random() * 1000);
+    }
 
-    const instance = await prisma.evolutionInstance.upsert({
+    await prisma.evolutionInstance.upsert({
         where: { instanceId },
-        update: {
-            name,
-            // Only overwrite stored values if user explicitly provided new ones.
-            endpointUrl: endpointUrlInput ? endpointUrlInput : existing?.endpointUrl ?? null,
-            apiKey: apiKeyInput ? apiKeyInput : existing?.apiKey ?? null,
-            webhookSecret: existing?.webhookSecret ?? newWebhookSecret(),
-        },
+        update: { name, phoneNumber: phoneNumber || null },
         create: {
             name,
             instanceId,
-            endpointUrl: endpointUrlInput || null,
-            apiKey: apiKeyInput || null,
+            phoneNumber: phoneNumber || null,
             webhookSecret: newWebhookSecret(),
         },
     });
@@ -83,13 +81,95 @@ export async function linkDeviceToInstance(instanceId: string, deviceId: string)
 }
 
 export async function unlinkDevice(instanceId: string) {
-    await prisma.evolutionInstance.update({
-        where: { id: instanceId },
-        data: { deviceId: null }
-    });
+    console.log(`[Actions] Desvinculando dispositivo da instância ${instanceId}...`);
+    try {
+        await prisma.evolutionInstance.update({
+            where: { id: instanceId },
+            data: { deviceId: null }
+        });
+        console.log(`[Actions] Dispositivo desvinculado com sucesso.`);
+        revalidatePath('/settings');
+        return { success: true };
+    } catch (error) {
+        console.error(`[Actions] Erro ao desvincular dispositivo:`, error);
+        return { success: false, error: 'Falha ao desvincular dispositivo no banco de dados.' };
+    }
+}
 
-    revalidatePath('/settings');
-    return { success: true };
+export async function logoutInstance(evolutionInstanceDbId: string) {
+    console.log(`[Actions] Iniciando logout da instância ${evolutionInstanceDbId}...`);
+    try {
+        const instance = await prisma.evolutionInstance.findUnique({ where: { id: evolutionInstanceDbId } });
+
+        if (!instance) {
+            return { success: false, error: 'Instância não encontrada.' };
+        }
+
+        const endpointUrl = instance.endpointUrl || process.env.EVOLUTION_SERVER_URL || '';
+        const apiKey = instance.apiKey || process.env.EVOLUTION_API_KEY || '';
+
+        if (endpointUrl && apiKey) {
+            try {
+                console.log(`[Actions] Chamando logout na Evolution API para ${instance.instanceId}...`);
+                await logoutEvolutionInstance({
+                    endpointUrl,
+                    apiKey,
+                    instanceName: instance.instanceId,
+                });
+                console.log(`[Actions] Logout na Evolution API concluído.`);
+            } catch (e) {
+                console.error('[Actions] Erro ao fazer logout na Evolution (prosseguindo):', e);
+            }
+        }
+
+        revalidatePath('/settings');
+        return { success: true };
+    } catch (error) {
+        console.error(`[Actions] Erro ao realizar logout:`, error);
+        return { success: false, error: 'Falha ao processar logout da instância.' };
+    }
+}
+
+export async function deleteInstance(evolutionInstanceDbId: string) {
+    console.log(`[Actions] Deletando instância ${evolutionInstanceDbId}...`);
+    try {
+        const instance = await prisma.evolutionInstance.findUnique({ where: { id: evolutionInstanceDbId } });
+        if (!instance) {
+            return { success: false, error: 'Instância não encontrada.' };
+        }
+
+        const endpointUrl = instance.endpointUrl || process.env.EVOLUTION_SERVER_URL || '';
+        const apiKey = instance.apiKey || process.env.EVOLUTION_API_KEY || '';
+
+        // Tenta deletar na Evolution API primeiro
+        if (endpointUrl && apiKey) {
+            try {
+                console.log(`[Actions] Deletando instância na Evolution API: ${instance.instanceId}...`);
+                const { deleteEvolutionInstance } = await import('@/lib/evolution');
+                await deleteEvolutionInstance({
+                    endpointUrl,
+                    apiKey,
+                    instanceName: instance.instanceId,
+                });
+                console.log(`[Actions] Instância deletada na Evolution API com sucesso.`);
+            } catch (e) {
+                console.error('[Actions] Erro ao deletar na Evolution (prosseguindo):', e);
+            }
+        }
+
+        // Deleta do banco local. O Cascading Delete cuidará do resto.
+        await prisma.evolutionInstance.delete({
+            where: { id: evolutionInstanceDbId }
+        });
+
+        console.log(`[Actions] Instância deletada com sucesso do banco de dados.`);
+        revalidatePath('/settings');
+        revalidatePath('/');
+        return { success: true };
+    } catch (error) {
+        console.error(`[Actions] Erro ao deletar instância:`, error);
+        return { success: false, error: 'Falha ao excluir instância. Verifique logs do servidor.' };
+    }
 }
 
 export async function provisionEvolutionInstance(evolutionInstanceDbId: string) {
@@ -139,11 +219,14 @@ export async function provisionEvolutionInstance(evolutionInstanceDbId: string) 
         warnings.push('WEBHOOK_PUBLIC_BASE_URL não configurado; webhook não foi setado (QR ainda funciona).');
     }
 
+    console.log(`Provisionando instância ${instance.instanceId} na Evolution...`);
     const connect = await connectEvolutionInstance({
         endpointUrl,
         apiKey,
         instanceName: instance.instanceId,
     });
+
+    console.log('Resposta da Evolution (connect):', JSON.stringify(connect, null, 2));
 
     revalidatePath('/settings');
     return { success: true, connect, warnings };

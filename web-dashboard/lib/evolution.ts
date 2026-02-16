@@ -108,3 +108,50 @@ export async function setEvolutionWebhook(config: EvolutionWebhookConfig) {
 
   return await resp.json().catch(() => ({}));
 }
+
+export async function logoutEvolutionInstance(args: {
+  endpointUrl: string;
+  apiKey: string;
+  instanceName: string;
+}) {
+  const base = stripTrailingSlashes(args.endpointUrl);
+  const url = `${base}/instance/logout/${encodeURIComponent(args.instanceName)}`;
+
+  const resp = await fetch(url, {
+    method: "DELETE",
+    headers: {
+      apikey: args.apiKey,
+    },
+  });
+
+  if (!resp.ok) {
+    const text = await resp.text().catch(() => "");
+    throw new Error(`Evolution instance logout failed: HTTP ${resp.status} ${text.slice(0, 300)}`);
+  }
+
+  return await resp.json().catch(() => ({}));
+}
+
+export async function deleteEvolutionInstance(args: {
+  endpointUrl: string;
+  apiKey: string;
+  instanceName: string;
+}) {
+  const base = stripTrailingSlashes(args.endpointUrl);
+  const url = `${base}/instance/delete/${encodeURIComponent(args.instanceName)}`;
+
+  const resp = await fetch(url, {
+    method: "DELETE",
+    headers: {
+      apikey: args.apiKey,
+    },
+  });
+
+  if (!resp.ok) {
+    const text = await resp.text().catch(() => "");
+    throw new Error(`Evolution instance delete failed: HTTP ${resp.status} ${text.slice(0, 300)}`);
+  }
+
+  return await resp.json().catch(() => ({}));
+}
+

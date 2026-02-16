@@ -33,28 +33,44 @@ class AppNotificationService : NotificationListenerService() {
             val notification = sbn.notification
             val extras = notification?.extras
             
-            // Check for call style notification or specific extras
-            // Note: WhatsApp call notifications can be tricky. This logic depends on specific extras.
-            
-            val callTypeInt = extras?.getInt("android.callType")
-            
-            // If callTypeInt is present, it's a call notification attempt
-            if (callTypeInt != null && callTypeInt != 0) {
-                 val callType = if (callTypeInt == 1) WhatsAppCallType.INCOMING else WhatsAppCallType.OUTGOING
-                 
-                 var personName = "Unknown"
-                 val callPerson = extras.get("android.callPerson")
-                 // Also try android.title or others if needed
-                 
-                 if (callPerson != null && callPerson is Person) {
-                    personName = callPerson.name?.toString() ?: "Unknown"
-                 } else {
-                     personName = extras.getString(Notification.EXTRA_TITLE) ?: "Unknown"
-                 }
+            // Log extras for debugging
+            if (extras != null) {
+                Log.d("AppNotificationService", "--- WhatsApp Notification ---")
+                for (key in extras.keySet()) {
+                    Log.d("AppNotificationService", "Extra: $key = ${extras.get(key)}")
+                }
+            }
 
-                 Log.d("AppNotificationService", "Detected Call: $personName - $callType")
+            val category = notification?.category
+            val title = extras?.getString(Notification.EXTRA_TITLE) ?: ""
+            val text = extras?.getCharSequence(Notification.EXTRA_TEXT)?.toString() ?: ""
+            
+            val isCall = category == Notification.CATEGORY_CALL || 
+                         title.contains("chamada", ignoreCase = true) || 
+                         text.contains("chamada", ignoreCase = true) ||
+                         extras?.containsKey("android.callType") == true
 
-                 if (onGoingCall == null) {
+            if (isCall) {
+                val callTypeInt = extras?.getInt("android.callType") ?: 0
+                val callType = if (callTypeInt == 1 || text.contains("recebida", ignoreCase = true) || title.contains("recebida", ignoreCase = true)) {
+                    WhatsAppCallType.INCOMING
+                } else {
+                    WhatsAppCallType.OUTGOING
+                }
+                 
+                var personName = title
+                val callPerson = extras?.get("android.callPerson")
+                if (callPerson != null && callPerson is Person) {
+                    personName = callPerson.name?.toString() ?: personName
+                }
+
+                if (personName == "WhatsApp" || personName.isBlank()) {
+                    personName = "Desconhecido"
+                }
+
+                Log.d("AppNotificationService", "Detected Call: $personName - $callType")
+
+                if (onGoingCall == null) {
                     onGoingCall = WhatsAppCall(
                         id = sbn.id,
                         callType = callType,
@@ -63,7 +79,7 @@ class AppNotificationService : NotificationListenerService() {
                         callTime = System.currentTimeMillis(),
                         callDuration = 0
                     )
-                 }
+                }
             }
         }
     }

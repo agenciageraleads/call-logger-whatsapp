@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { PrismaClient } from '@/lib/generated/prisma';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -7,8 +8,25 @@ export const runtime = 'nodejs';
 type EvolutionWebhookPayload = {
   event?: string;
   instance?: string;
-  data?: any;
+  data?: unknown;
 };
+
+interface WebhookMessage {
+  key?: {
+    remoteJid?: string;
+    jid?: string;
+    fromMe?: boolean;
+    id?: string;
+  };
+  remoteJid?: string;
+  id?: string;
+  messageTimestamp?: number | string;
+  timestamp?: number | string;
+  t?: number | string;
+  data?: {
+    messageTimestamp?: number | string;
+  };
+}
 
 function normalizeEvent(event: string) {
   return event.trim().toUpperCase().replace(/\./g, '_');
@@ -29,8 +47,7 @@ function getDayStart(d: Date) {
 }
 
 function isUniqueViolation(e: unknown) {
-  // Avoid importing Prisma namespace (can be missing depending on client build output).
-  return Boolean(e && typeof e === 'object' && 'code' in e && (e as any).code === 'P2002');
+  return Boolean(e && typeof e === 'object' && 'code' in e && (e as Record<string, unknown>).code === 'P2002');
 }
 
 export async function POST(req: Request) {
@@ -46,7 +63,6 @@ export async function POST(req: Request) {
 
     const eventNorm = normalizeEvent(event);
     if (eventNorm !== 'MESSAGES_UPSERT') {
-      // Return 200 to avoid retries for events we don't handle yet.
       return NextResponse.json({ status: 'ignored_event', event: eventNorm });
     }
 
@@ -58,9 +74,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ status: 'ignored_instance_unknown' });
     }
 
-    // Optional auth:
-    // - Prefer per-instance webhookSecret if stored.
-    // - Otherwise, allow global WEBHOOK_SECRET from server env.
     const expectedSecret = evolutionInstance.webhookSecret || process.env.WEBHOOK_SECRET || '';
     if (expectedSecret) {
       const headerSecret = req.headers.get('x-webhook-secret') || '';
@@ -69,18 +82,17 @@ export async function POST(req: Request) {
       }
     }
 
-    const messages: any[] = Array.isArray(data?.messages)
-      ? data.messages
+    const messages: WebhookMessage[] = Array.isArray((data as any)?.messages)
+      ? (data as any).messages
       : data
-        ? [data]
+        ? [data as WebhookMessage]
         : [];
 
     if (!messages.length) {
       return NextResponse.json({ status: 'no_messages' });
     }
 
-    // Group by day start, in case Evolution batches old messages.
-    const groups = new Map<number, any[]>();
+    const groups = new Map<number, WebhookMessage[]>();
     for (const msg of messages) {
       const ts = parseMessageTimestamp(msg?.messageTimestamp ?? msg?.timestamp ?? msg?.t ?? msg?.data?.messageTimestamp);
       const day = getDayStart(ts).getTime();
@@ -89,12 +101,12 @@ export async function POST(req: Request) {
       groups.set(day, arr);
     }
 
-    const results: any[] = [];
+    const results: unknown[] = [];
 
     for (const [dayMs, msgs] of groups.entries()) {
       const day = new Date(dayMs);
 
-      const outcome = await prisma.$transaction(async (tx: any) => {
+      const outcome = await prisma.$transaction(async (tx) => {
         let sentCount = 0;
         let receivedCount = 0;
         let newContacts = 0;
@@ -106,16 +118,14 @@ export async function POST(req: Request) {
           const messageId = key?.id || msg?.id;
 
           if (!remoteJid || !messageId) continue;
-          // Ignore groups.
           if (String(remoteJid).endsWith('@g.us')) continue;
 
           const fromMe = Boolean(key?.fromMe);
           const direction = fromMe ? 'SENT' : 'RECEIVED';
           const ts = parseMessageTimestamp(msg?.messageTimestamp ?? msg?.timestamp);
 
-          // Idempotency: if we already processed this message id, skip counts.
           try {
-            await tx.processedMessage.create({
+            await (tx as any).processedMessage.create({
               data: {
                 instanceId: evolutionInstance.id,
                 messageId: String(messageId),
@@ -132,9 +142,8 @@ export async function POST(req: Request) {
           if (fromMe) sentCount += 1;
           else receivedCount += 1;
 
-          // New contact (ever)
           try {
-            await tx.contact.create({
+            await (tx as any).contact.create({
               data: {
                 instanceId: evolutionInstance.id,
                 jid: String(remoteJid),
@@ -145,9 +154,8 @@ export async function POST(req: Request) {
             if (!isUniqueViolation(e)) throw e;
           }
 
-          // Active conversation (per day)
           try {
-            await tx.dailyConversation.create({
+            await (tx as any).dailyConversation.create({
               data: {
                 instanceId: evolutionInstance.id,
                 date: day,
@@ -164,7 +172,7 @@ export async function POST(req: Request) {
           return { processed: 0, day };
         }
 
-        await tx.dailyMetric.upsert({
+        await (tx as any).dailyMetric.upsert({
           where: {
             date_instanceId: {
               date: day,

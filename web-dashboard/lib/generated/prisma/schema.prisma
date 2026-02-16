@@ -1,0 +1,102 @@
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../lib/generated/prisma"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Device {
+  id                String             @id
+  name              String?
+  lastSeen          DateTime?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  calls             CallLog[]
+  evolutionInstance EvolutionInstance?
+}
+
+model CallLog {
+  id        String   @id @default(cuid())
+  person    String
+  duration  Int
+  type      String
+  status    String
+  timestamp DateTime
+  deviceId  String
+  createdAt DateTime @default(now())
+  device    Device   @relation(fields: [deviceId], references: [id])
+}
+
+model EvolutionInstance {
+  id                String              @id @default(cuid())
+  name              String
+  instanceId        String              @unique
+  phoneNumber       String?
+  apiKey            String?
+  endpointUrl       String?
+  webhookSecret     String?
+  deviceId          String?             @unique
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  contacts          Contact[]
+  conversations     DailyConversation[]
+  metrics           DailyMetric[]
+  device            Device?             @relation(fields: [deviceId], references: [id])
+  processedMessages ProcessedMessage[]
+}
+
+model DailyMetric {
+  id                  String            @id @default(cuid())
+  date                DateTime
+  instanceId          String
+  activeConversations Int               @default(0)
+  newContacts         Int               @default(0)
+  messagesSent        Int               @default(0)
+  messagesReceived    Int               @default(0)
+  callsMade           Int               @default(0)
+  callsReceived       Int               @default(0)
+  callDuration        Int               @default(0)
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  instance            EvolutionInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+
+  @@unique([date, instanceId])
+}
+
+model Contact {
+  id         String            @id @default(cuid())
+  instanceId String
+  jid        String
+  firstSeen  DateTime          @default(now())
+  instance   EvolutionInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+
+  @@unique([instanceId, jid])
+}
+
+model DailyConversation {
+  id         String            @id @default(cuid())
+  date       DateTime
+  instanceId String
+  jid        String
+  createdAt  DateTime          @default(now())
+  instance   EvolutionInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+
+  @@unique([date, instanceId, jid])
+}
+
+model ProcessedMessage {
+  id         String            @id @default(cuid())
+  instanceId String
+  messageId  String
+  jid        String
+  direction  String
+  timestamp  DateTime
+  createdAt  DateTime          @default(now())
+  instance   EvolutionInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+
+  @@unique([instanceId, messageId])
+}
