@@ -58,6 +58,11 @@ export type DailyConversation = $Result.DefaultSelection<Prisma.$DailyConversati
  * 
  */
 export type ProcessedMessage = $Result.DefaultSelection<Prisma.$ProcessedMessagePayload>
+/**
+ * Model SaleRecord
+ * 
+ */
+export type SaleRecord = $Result.DefaultSelection<Prisma.$SaleRecordPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -271,6 +276,16 @@ export class PrismaClient<
     * ```
     */
   get processedMessage(): Prisma.ProcessedMessageDelegate<ExtArgs>;
+
+  /**
+   * `prisma.saleRecord`: Exposes CRUD operations for the **SaleRecord** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more SaleRecords
+    * const saleRecords = await prisma.saleRecord.findMany()
+    * ```
+    */
+  get saleRecord(): Prisma.SaleRecordDelegate<ExtArgs>;
 }
 
 export namespace Prisma {
@@ -720,7 +735,8 @@ export namespace Prisma {
     Lead: 'Lead',
     Note: 'Note',
     DailyConversation: 'DailyConversation',
-    ProcessedMessage: 'ProcessedMessage'
+    ProcessedMessage: 'ProcessedMessage',
+    SaleRecord: 'SaleRecord'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -736,7 +752,7 @@ export namespace Prisma {
 
   export type TypeMap<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, ClientOptions = {}> = {
     meta: {
-      modelProps: "device" | "callLog" | "evolutionInstance" | "dailyMetric" | "contact" | "lead" | "note" | "dailyConversation" | "processedMessage"
+      modelProps: "device" | "callLog" | "evolutionInstance" | "dailyMetric" | "contact" | "lead" | "note" | "dailyConversation" | "processedMessage" | "saleRecord"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1370,6 +1386,76 @@ export namespace Prisma {
           }
         }
       }
+      SaleRecord: {
+        payload: Prisma.$SaleRecordPayload<ExtArgs>
+        fields: Prisma.SaleRecordFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.SaleRecordFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SaleRecordPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.SaleRecordFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SaleRecordPayload>
+          }
+          findFirst: {
+            args: Prisma.SaleRecordFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SaleRecordPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.SaleRecordFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SaleRecordPayload>
+          }
+          findMany: {
+            args: Prisma.SaleRecordFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SaleRecordPayload>[]
+          }
+          create: {
+            args: Prisma.SaleRecordCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SaleRecordPayload>
+          }
+          createMany: {
+            args: Prisma.SaleRecordCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.SaleRecordCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SaleRecordPayload>[]
+          }
+          delete: {
+            args: Prisma.SaleRecordDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SaleRecordPayload>
+          }
+          update: {
+            args: Prisma.SaleRecordUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SaleRecordPayload>
+          }
+          deleteMany: {
+            args: Prisma.SaleRecordDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.SaleRecordUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          upsert: {
+            args: Prisma.SaleRecordUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$SaleRecordPayload>
+          }
+          aggregate: {
+            args: Prisma.SaleRecordAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateSaleRecord>
+          }
+          groupBy: {
+            args: Prisma.SaleRecordGroupByArgs<ExtArgs>
+            result: $Utils.Optional<SaleRecordGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.SaleRecordCountArgs<ExtArgs>
+            result: $Utils.Optional<SaleRecordCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1612,6 +1698,37 @@ export namespace Prisma {
    */
   export type EvolutionInstanceCountOutputTypeCountProcessedMessagesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: ProcessedMessageWhereInput
+  }
+
+
+  /**
+   * Count Type ContactCountOutputType
+   */
+
+  export type ContactCountOutputType = {
+    sales: number
+  }
+
+  export type ContactCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    sales?: boolean | ContactCountOutputTypeCountSalesArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * ContactCountOutputType without action
+   */
+  export type ContactCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the ContactCountOutputType
+     */
+    select?: ContactCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * ContactCountOutputType without action
+   */
+  export type ContactCountOutputTypeCountSalesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SaleRecordWhereInput
   }
 
 
@@ -5807,6 +5924,7 @@ export namespace Prisma {
     id: string | null
     instanceId: string | null
     jid: string | null
+    isIgnored: boolean | null
     firstSeen: Date | null
   }
 
@@ -5814,6 +5932,7 @@ export namespace Prisma {
     id: string | null
     instanceId: string | null
     jid: string | null
+    isIgnored: boolean | null
     firstSeen: Date | null
   }
 
@@ -5821,6 +5940,7 @@ export namespace Prisma {
     id: number
     instanceId: number
     jid: number
+    isIgnored: number
     firstSeen: number
     _all: number
   }
@@ -5830,6 +5950,7 @@ export namespace Prisma {
     id?: true
     instanceId?: true
     jid?: true
+    isIgnored?: true
     firstSeen?: true
   }
 
@@ -5837,6 +5958,7 @@ export namespace Prisma {
     id?: true
     instanceId?: true
     jid?: true
+    isIgnored?: true
     firstSeen?: true
   }
 
@@ -5844,6 +5966,7 @@ export namespace Prisma {
     id?: true
     instanceId?: true
     jid?: true
+    isIgnored?: true
     firstSeen?: true
     _all?: true
   }
@@ -5924,6 +6047,7 @@ export namespace Prisma {
     id: string
     instanceId: string
     jid: string
+    isIgnored: boolean
     firstSeen: Date
     _count: ContactCountAggregateOutputType | null
     _min: ContactMinAggregateOutputType | null
@@ -5948,15 +6072,19 @@ export namespace Prisma {
     id?: boolean
     instanceId?: boolean
     jid?: boolean
+    isIgnored?: boolean
     firstSeen?: boolean
     instance?: boolean | EvolutionInstanceDefaultArgs<ExtArgs>
     lead?: boolean | Contact$leadArgs<ExtArgs>
+    sales?: boolean | Contact$salesArgs<ExtArgs>
+    _count?: boolean | ContactCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["contact"]>
 
   export type ContactSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     instanceId?: boolean
     jid?: boolean
+    isIgnored?: boolean
     firstSeen?: boolean
     instance?: boolean | EvolutionInstanceDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["contact"]>
@@ -5965,12 +6093,15 @@ export namespace Prisma {
     id?: boolean
     instanceId?: boolean
     jid?: boolean
+    isIgnored?: boolean
     firstSeen?: boolean
   }
 
   export type ContactInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     instance?: boolean | EvolutionInstanceDefaultArgs<ExtArgs>
     lead?: boolean | Contact$leadArgs<ExtArgs>
+    sales?: boolean | Contact$salesArgs<ExtArgs>
+    _count?: boolean | ContactCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ContactIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     instance?: boolean | EvolutionInstanceDefaultArgs<ExtArgs>
@@ -5981,11 +6112,13 @@ export namespace Prisma {
     objects: {
       instance: Prisma.$EvolutionInstancePayload<ExtArgs>
       lead: Prisma.$LeadPayload<ExtArgs> | null
+      sales: Prisma.$SaleRecordPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       instanceId: string
       jid: string
+      isIgnored: boolean
       firstSeen: Date
     }, ExtArgs["result"]["contact"]>
     composites: {}
@@ -6353,6 +6486,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     instance<T extends EvolutionInstanceDefaultArgs<ExtArgs> = {}>(args?: Subset<T, EvolutionInstanceDefaultArgs<ExtArgs>>): Prisma__EvolutionInstanceClient<$Result.GetResult<Prisma.$EvolutionInstancePayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
     lead<T extends Contact$leadArgs<ExtArgs> = {}>(args?: Subset<T, Contact$leadArgs<ExtArgs>>): Prisma__LeadClient<$Result.GetResult<Prisma.$LeadPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
+    sales<T extends Contact$salesArgs<ExtArgs> = {}>(args?: Subset<T, Contact$salesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SaleRecordPayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -6385,6 +6519,7 @@ export namespace Prisma {
     readonly id: FieldRef<"Contact", 'String'>
     readonly instanceId: FieldRef<"Contact", 'String'>
     readonly jid: FieldRef<"Contact", 'String'>
+    readonly isIgnored: FieldRef<"Contact", 'Boolean'>
     readonly firstSeen: FieldRef<"Contact", 'DateTime'>
   }
     
@@ -6717,6 +6852,26 @@ export namespace Prisma {
   }
 
   /**
+   * Contact.sales
+   */
+  export type Contact$salesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SaleRecord
+     */
+    select?: SaleRecordSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SaleRecordInclude<ExtArgs> | null
+    where?: SaleRecordWhereInput
+    orderBy?: SaleRecordOrderByWithRelationInput | SaleRecordOrderByWithRelationInput[]
+    cursor?: SaleRecordWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: SaleRecordScalarFieldEnum | SaleRecordScalarFieldEnum[]
+  }
+
+  /**
    * Contact without action
    */
   export type ContactDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6744,10 +6899,12 @@ export namespace Prisma {
   }
 
   export type LeadAvgAggregateOutputType = {
+    value: number | null
     score: number | null
   }
 
   export type LeadSumAggregateOutputType = {
+    value: number | null
     score: number | null
   }
 
@@ -6755,6 +6912,7 @@ export namespace Prisma {
     id: string | null
     contactId: string | null
     status: string | null
+    value: number | null
     score: number | null
     contextSummary: string | null
     lastInteraction: Date | null
@@ -6766,6 +6924,7 @@ export namespace Prisma {
     id: string | null
     contactId: string | null
     status: string | null
+    value: number | null
     score: number | null
     contextSummary: string | null
     lastInteraction: Date | null
@@ -6777,6 +6936,7 @@ export namespace Prisma {
     id: number
     contactId: number
     status: number
+    value: number
     score: number
     contextSummary: number
     lastInteraction: number
@@ -6787,10 +6947,12 @@ export namespace Prisma {
 
 
   export type LeadAvgAggregateInputType = {
+    value?: true
     score?: true
   }
 
   export type LeadSumAggregateInputType = {
+    value?: true
     score?: true
   }
 
@@ -6798,6 +6960,7 @@ export namespace Prisma {
     id?: true
     contactId?: true
     status?: true
+    value?: true
     score?: true
     contextSummary?: true
     lastInteraction?: true
@@ -6809,6 +6972,7 @@ export namespace Prisma {
     id?: true
     contactId?: true
     status?: true
+    value?: true
     score?: true
     contextSummary?: true
     lastInteraction?: true
@@ -6820,6 +6984,7 @@ export namespace Prisma {
     id?: true
     contactId?: true
     status?: true
+    value?: true
     score?: true
     contextSummary?: true
     lastInteraction?: true
@@ -6918,6 +7083,7 @@ export namespace Prisma {
     id: string
     contactId: string
     status: string
+    value: number
     score: number
     contextSummary: string | null
     lastInteraction: Date
@@ -6948,6 +7114,7 @@ export namespace Prisma {
     id?: boolean
     contactId?: boolean
     status?: boolean
+    value?: boolean
     score?: boolean
     contextSummary?: boolean
     lastInteraction?: boolean
@@ -6962,6 +7129,7 @@ export namespace Prisma {
     id?: boolean
     contactId?: boolean
     status?: boolean
+    value?: boolean
     score?: boolean
     contextSummary?: boolean
     lastInteraction?: boolean
@@ -6974,6 +7142,7 @@ export namespace Prisma {
     id?: boolean
     contactId?: boolean
     status?: boolean
+    value?: boolean
     score?: boolean
     contextSummary?: boolean
     lastInteraction?: boolean
@@ -7000,6 +7169,7 @@ export namespace Prisma {
       id: string
       contactId: string
       status: string
+      value: number
       score: number
       contextSummary: string | null
       lastInteraction: Date
@@ -7403,6 +7573,7 @@ export namespace Prisma {
     readonly id: FieldRef<"Lead", 'String'>
     readonly contactId: FieldRef<"Lead", 'String'>
     readonly status: FieldRef<"Lead", 'String'>
+    readonly value: FieldRef<"Lead", 'Float'>
     readonly score: FieldRef<"Lead", 'Int'>
     readonly contextSummary: FieldRef<"Lead", 'String'>
     readonly lastInteraction: FieldRef<"Lead", 'DateTime'>
@@ -10564,6 +10735,971 @@ export namespace Prisma {
 
 
   /**
+   * Model SaleRecord
+   */
+
+  export type AggregateSaleRecord = {
+    _count: SaleRecordCountAggregateOutputType | null
+    _avg: SaleRecordAvgAggregateOutputType | null
+    _sum: SaleRecordSumAggregateOutputType | null
+    _min: SaleRecordMinAggregateOutputType | null
+    _max: SaleRecordMaxAggregateOutputType | null
+  }
+
+  export type SaleRecordAvgAggregateOutputType = {
+    value: number | null
+  }
+
+  export type SaleRecordSumAggregateOutputType = {
+    value: number | null
+  }
+
+  export type SaleRecordMinAggregateOutputType = {
+    id: string | null
+    contactId: string | null
+    value: number | null
+    closedAt: Date | null
+    instanceId: string | null
+  }
+
+  export type SaleRecordMaxAggregateOutputType = {
+    id: string | null
+    contactId: string | null
+    value: number | null
+    closedAt: Date | null
+    instanceId: string | null
+  }
+
+  export type SaleRecordCountAggregateOutputType = {
+    id: number
+    contactId: number
+    value: number
+    closedAt: number
+    instanceId: number
+    _all: number
+  }
+
+
+  export type SaleRecordAvgAggregateInputType = {
+    value?: true
+  }
+
+  export type SaleRecordSumAggregateInputType = {
+    value?: true
+  }
+
+  export type SaleRecordMinAggregateInputType = {
+    id?: true
+    contactId?: true
+    value?: true
+    closedAt?: true
+    instanceId?: true
+  }
+
+  export type SaleRecordMaxAggregateInputType = {
+    id?: true
+    contactId?: true
+    value?: true
+    closedAt?: true
+    instanceId?: true
+  }
+
+  export type SaleRecordCountAggregateInputType = {
+    id?: true
+    contactId?: true
+    value?: true
+    closedAt?: true
+    instanceId?: true
+    _all?: true
+  }
+
+  export type SaleRecordAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SaleRecord to aggregate.
+     */
+    where?: SaleRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SaleRecords to fetch.
+     */
+    orderBy?: SaleRecordOrderByWithRelationInput | SaleRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: SaleRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SaleRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SaleRecords.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned SaleRecords
+    **/
+    _count?: true | SaleRecordCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: SaleRecordAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SaleRecordSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: SaleRecordMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: SaleRecordMaxAggregateInputType
+  }
+
+  export type GetSaleRecordAggregateType<T extends SaleRecordAggregateArgs> = {
+        [P in keyof T & keyof AggregateSaleRecord]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateSaleRecord[P]>
+      : GetScalarType<T[P], AggregateSaleRecord[P]>
+  }
+
+
+
+
+  export type SaleRecordGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: SaleRecordWhereInput
+    orderBy?: SaleRecordOrderByWithAggregationInput | SaleRecordOrderByWithAggregationInput[]
+    by: SaleRecordScalarFieldEnum[] | SaleRecordScalarFieldEnum
+    having?: SaleRecordScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: SaleRecordCountAggregateInputType | true
+    _avg?: SaleRecordAvgAggregateInputType
+    _sum?: SaleRecordSumAggregateInputType
+    _min?: SaleRecordMinAggregateInputType
+    _max?: SaleRecordMaxAggregateInputType
+  }
+
+  export type SaleRecordGroupByOutputType = {
+    id: string
+    contactId: string
+    value: number
+    closedAt: Date
+    instanceId: string
+    _count: SaleRecordCountAggregateOutputType | null
+    _avg: SaleRecordAvgAggregateOutputType | null
+    _sum: SaleRecordSumAggregateOutputType | null
+    _min: SaleRecordMinAggregateOutputType | null
+    _max: SaleRecordMaxAggregateOutputType | null
+  }
+
+  type GetSaleRecordGroupByPayload<T extends SaleRecordGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<SaleRecordGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof SaleRecordGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], SaleRecordGroupByOutputType[P]>
+            : GetScalarType<T[P], SaleRecordGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type SaleRecordSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    contactId?: boolean
+    value?: boolean
+    closedAt?: boolean
+    instanceId?: boolean
+    contact?: boolean | ContactDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["saleRecord"]>
+
+  export type SaleRecordSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    contactId?: boolean
+    value?: boolean
+    closedAt?: boolean
+    instanceId?: boolean
+    contact?: boolean | ContactDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["saleRecord"]>
+
+  export type SaleRecordSelectScalar = {
+    id?: boolean
+    contactId?: boolean
+    value?: boolean
+    closedAt?: boolean
+    instanceId?: boolean
+  }
+
+  export type SaleRecordInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    contact?: boolean | ContactDefaultArgs<ExtArgs>
+  }
+  export type SaleRecordIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    contact?: boolean | ContactDefaultArgs<ExtArgs>
+  }
+
+  export type $SaleRecordPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "SaleRecord"
+    objects: {
+      contact: Prisma.$ContactPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      contactId: string
+      value: number
+      closedAt: Date
+      instanceId: string
+    }, ExtArgs["result"]["saleRecord"]>
+    composites: {}
+  }
+
+  type SaleRecordGetPayload<S extends boolean | null | undefined | SaleRecordDefaultArgs> = $Result.GetResult<Prisma.$SaleRecordPayload, S>
+
+  type SaleRecordCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = 
+    Omit<SaleRecordFindManyArgs, 'select' | 'include' | 'distinct'> & {
+      select?: SaleRecordCountAggregateInputType | true
+    }
+
+  export interface SaleRecordDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['SaleRecord'], meta: { name: 'SaleRecord' } }
+    /**
+     * Find zero or one SaleRecord that matches the filter.
+     * @param {SaleRecordFindUniqueArgs} args - Arguments to find a SaleRecord
+     * @example
+     * // Get one SaleRecord
+     * const saleRecord = await prisma.saleRecord.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends SaleRecordFindUniqueArgs>(args: SelectSubset<T, SaleRecordFindUniqueArgs<ExtArgs>>): Prisma__SaleRecordClient<$Result.GetResult<Prisma.$SaleRecordPayload<ExtArgs>, T, "findUnique"> | null, null, ExtArgs>
+
+    /**
+     * Find one SaleRecord that matches the filter or throw an error with `error.code='P2025'` 
+     * if no matches were found.
+     * @param {SaleRecordFindUniqueOrThrowArgs} args - Arguments to find a SaleRecord
+     * @example
+     * // Get one SaleRecord
+     * const saleRecord = await prisma.saleRecord.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends SaleRecordFindUniqueOrThrowArgs>(args: SelectSubset<T, SaleRecordFindUniqueOrThrowArgs<ExtArgs>>): Prisma__SaleRecordClient<$Result.GetResult<Prisma.$SaleRecordPayload<ExtArgs>, T, "findUniqueOrThrow">, never, ExtArgs>
+
+    /**
+     * Find the first SaleRecord that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SaleRecordFindFirstArgs} args - Arguments to find a SaleRecord
+     * @example
+     * // Get one SaleRecord
+     * const saleRecord = await prisma.saleRecord.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends SaleRecordFindFirstArgs>(args?: SelectSubset<T, SaleRecordFindFirstArgs<ExtArgs>>): Prisma__SaleRecordClient<$Result.GetResult<Prisma.$SaleRecordPayload<ExtArgs>, T, "findFirst"> | null, null, ExtArgs>
+
+    /**
+     * Find the first SaleRecord that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SaleRecordFindFirstOrThrowArgs} args - Arguments to find a SaleRecord
+     * @example
+     * // Get one SaleRecord
+     * const saleRecord = await prisma.saleRecord.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends SaleRecordFindFirstOrThrowArgs>(args?: SelectSubset<T, SaleRecordFindFirstOrThrowArgs<ExtArgs>>): Prisma__SaleRecordClient<$Result.GetResult<Prisma.$SaleRecordPayload<ExtArgs>, T, "findFirstOrThrow">, never, ExtArgs>
+
+    /**
+     * Find zero or more SaleRecords that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SaleRecordFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all SaleRecords
+     * const saleRecords = await prisma.saleRecord.findMany()
+     * 
+     * // Get first 10 SaleRecords
+     * const saleRecords = await prisma.saleRecord.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const saleRecordWithIdOnly = await prisma.saleRecord.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends SaleRecordFindManyArgs>(args?: SelectSubset<T, SaleRecordFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SaleRecordPayload<ExtArgs>, T, "findMany">>
+
+    /**
+     * Create a SaleRecord.
+     * @param {SaleRecordCreateArgs} args - Arguments to create a SaleRecord.
+     * @example
+     * // Create one SaleRecord
+     * const SaleRecord = await prisma.saleRecord.create({
+     *   data: {
+     *     // ... data to create a SaleRecord
+     *   }
+     * })
+     * 
+     */
+    create<T extends SaleRecordCreateArgs>(args: SelectSubset<T, SaleRecordCreateArgs<ExtArgs>>): Prisma__SaleRecordClient<$Result.GetResult<Prisma.$SaleRecordPayload<ExtArgs>, T, "create">, never, ExtArgs>
+
+    /**
+     * Create many SaleRecords.
+     * @param {SaleRecordCreateManyArgs} args - Arguments to create many SaleRecords.
+     * @example
+     * // Create many SaleRecords
+     * const saleRecord = await prisma.saleRecord.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends SaleRecordCreateManyArgs>(args?: SelectSubset<T, SaleRecordCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many SaleRecords and returns the data saved in the database.
+     * @param {SaleRecordCreateManyAndReturnArgs} args - Arguments to create many SaleRecords.
+     * @example
+     * // Create many SaleRecords
+     * const saleRecord = await prisma.saleRecord.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many SaleRecords and only return the `id`
+     * const saleRecordWithIdOnly = await prisma.saleRecord.createManyAndReturn({ 
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends SaleRecordCreateManyAndReturnArgs>(args?: SelectSubset<T, SaleRecordCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SaleRecordPayload<ExtArgs>, T, "createManyAndReturn">>
+
+    /**
+     * Delete a SaleRecord.
+     * @param {SaleRecordDeleteArgs} args - Arguments to delete one SaleRecord.
+     * @example
+     * // Delete one SaleRecord
+     * const SaleRecord = await prisma.saleRecord.delete({
+     *   where: {
+     *     // ... filter to delete one SaleRecord
+     *   }
+     * })
+     * 
+     */
+    delete<T extends SaleRecordDeleteArgs>(args: SelectSubset<T, SaleRecordDeleteArgs<ExtArgs>>): Prisma__SaleRecordClient<$Result.GetResult<Prisma.$SaleRecordPayload<ExtArgs>, T, "delete">, never, ExtArgs>
+
+    /**
+     * Update one SaleRecord.
+     * @param {SaleRecordUpdateArgs} args - Arguments to update one SaleRecord.
+     * @example
+     * // Update one SaleRecord
+     * const saleRecord = await prisma.saleRecord.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends SaleRecordUpdateArgs>(args: SelectSubset<T, SaleRecordUpdateArgs<ExtArgs>>): Prisma__SaleRecordClient<$Result.GetResult<Prisma.$SaleRecordPayload<ExtArgs>, T, "update">, never, ExtArgs>
+
+    /**
+     * Delete zero or more SaleRecords.
+     * @param {SaleRecordDeleteManyArgs} args - Arguments to filter SaleRecords to delete.
+     * @example
+     * // Delete a few SaleRecords
+     * const { count } = await prisma.saleRecord.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends SaleRecordDeleteManyArgs>(args?: SelectSubset<T, SaleRecordDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more SaleRecords.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SaleRecordUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many SaleRecords
+     * const saleRecord = await prisma.saleRecord.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends SaleRecordUpdateManyArgs>(args: SelectSubset<T, SaleRecordUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one SaleRecord.
+     * @param {SaleRecordUpsertArgs} args - Arguments to update or create a SaleRecord.
+     * @example
+     * // Update or create a SaleRecord
+     * const saleRecord = await prisma.saleRecord.upsert({
+     *   create: {
+     *     // ... data to create a SaleRecord
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the SaleRecord we want to update
+     *   }
+     * })
+     */
+    upsert<T extends SaleRecordUpsertArgs>(args: SelectSubset<T, SaleRecordUpsertArgs<ExtArgs>>): Prisma__SaleRecordClient<$Result.GetResult<Prisma.$SaleRecordPayload<ExtArgs>, T, "upsert">, never, ExtArgs>
+
+
+    /**
+     * Count the number of SaleRecords.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SaleRecordCountArgs} args - Arguments to filter SaleRecords to count.
+     * @example
+     * // Count the number of SaleRecords
+     * const count = await prisma.saleRecord.count({
+     *   where: {
+     *     // ... the filter for the SaleRecords we want to count
+     *   }
+     * })
+    **/
+    count<T extends SaleRecordCountArgs>(
+      args?: Subset<T, SaleRecordCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], SaleRecordCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a SaleRecord.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SaleRecordAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends SaleRecordAggregateArgs>(args: Subset<T, SaleRecordAggregateArgs>): Prisma.PrismaPromise<GetSaleRecordAggregateType<T>>
+
+    /**
+     * Group by SaleRecord.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {SaleRecordGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends SaleRecordGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: SaleRecordGroupByArgs['orderBy'] }
+        : { orderBy?: SaleRecordGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, SaleRecordGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetSaleRecordGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the SaleRecord model
+   */
+  readonly fields: SaleRecordFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for SaleRecord.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__SaleRecordClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    contact<T extends ContactDefaultArgs<ExtArgs> = {}>(args?: Subset<T, ContactDefaultArgs<ExtArgs>>): Prisma__ContactClient<$Result.GetResult<Prisma.$ContactPayload<ExtArgs>, T, "findUniqueOrThrow"> | Null, Null, ExtArgs>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the SaleRecord model
+   */ 
+  interface SaleRecordFieldRefs {
+    readonly id: FieldRef<"SaleRecord", 'String'>
+    readonly contactId: FieldRef<"SaleRecord", 'String'>
+    readonly value: FieldRef<"SaleRecord", 'Float'>
+    readonly closedAt: FieldRef<"SaleRecord", 'DateTime'>
+    readonly instanceId: FieldRef<"SaleRecord", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * SaleRecord findUnique
+   */
+  export type SaleRecordFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SaleRecord
+     */
+    select?: SaleRecordSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SaleRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which SaleRecord to fetch.
+     */
+    where: SaleRecordWhereUniqueInput
+  }
+
+  /**
+   * SaleRecord findUniqueOrThrow
+   */
+  export type SaleRecordFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SaleRecord
+     */
+    select?: SaleRecordSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SaleRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which SaleRecord to fetch.
+     */
+    where: SaleRecordWhereUniqueInput
+  }
+
+  /**
+   * SaleRecord findFirst
+   */
+  export type SaleRecordFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SaleRecord
+     */
+    select?: SaleRecordSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SaleRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which SaleRecord to fetch.
+     */
+    where?: SaleRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SaleRecords to fetch.
+     */
+    orderBy?: SaleRecordOrderByWithRelationInput | SaleRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SaleRecords.
+     */
+    cursor?: SaleRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SaleRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SaleRecords.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SaleRecords.
+     */
+    distinct?: SaleRecordScalarFieldEnum | SaleRecordScalarFieldEnum[]
+  }
+
+  /**
+   * SaleRecord findFirstOrThrow
+   */
+  export type SaleRecordFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SaleRecord
+     */
+    select?: SaleRecordSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SaleRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which SaleRecord to fetch.
+     */
+    where?: SaleRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SaleRecords to fetch.
+     */
+    orderBy?: SaleRecordOrderByWithRelationInput | SaleRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for SaleRecords.
+     */
+    cursor?: SaleRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SaleRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SaleRecords.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of SaleRecords.
+     */
+    distinct?: SaleRecordScalarFieldEnum | SaleRecordScalarFieldEnum[]
+  }
+
+  /**
+   * SaleRecord findMany
+   */
+  export type SaleRecordFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SaleRecord
+     */
+    select?: SaleRecordSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SaleRecordInclude<ExtArgs> | null
+    /**
+     * Filter, which SaleRecords to fetch.
+     */
+    where?: SaleRecordWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of SaleRecords to fetch.
+     */
+    orderBy?: SaleRecordOrderByWithRelationInput | SaleRecordOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing SaleRecords.
+     */
+    cursor?: SaleRecordWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` SaleRecords from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` SaleRecords.
+     */
+    skip?: number
+    distinct?: SaleRecordScalarFieldEnum | SaleRecordScalarFieldEnum[]
+  }
+
+  /**
+   * SaleRecord create
+   */
+  export type SaleRecordCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SaleRecord
+     */
+    select?: SaleRecordSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SaleRecordInclude<ExtArgs> | null
+    /**
+     * The data needed to create a SaleRecord.
+     */
+    data: XOR<SaleRecordCreateInput, SaleRecordUncheckedCreateInput>
+  }
+
+  /**
+   * SaleRecord createMany
+   */
+  export type SaleRecordCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many SaleRecords.
+     */
+    data: SaleRecordCreateManyInput | SaleRecordCreateManyInput[]
+  }
+
+  /**
+   * SaleRecord createManyAndReturn
+   */
+  export type SaleRecordCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SaleRecord
+     */
+    select?: SaleRecordSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * The data used to create many SaleRecords.
+     */
+    data: SaleRecordCreateManyInput | SaleRecordCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SaleRecordIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * SaleRecord update
+   */
+  export type SaleRecordUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SaleRecord
+     */
+    select?: SaleRecordSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SaleRecordInclude<ExtArgs> | null
+    /**
+     * The data needed to update a SaleRecord.
+     */
+    data: XOR<SaleRecordUpdateInput, SaleRecordUncheckedUpdateInput>
+    /**
+     * Choose, which SaleRecord to update.
+     */
+    where: SaleRecordWhereUniqueInput
+  }
+
+  /**
+   * SaleRecord updateMany
+   */
+  export type SaleRecordUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update SaleRecords.
+     */
+    data: XOR<SaleRecordUpdateManyMutationInput, SaleRecordUncheckedUpdateManyInput>
+    /**
+     * Filter which SaleRecords to update
+     */
+    where?: SaleRecordWhereInput
+  }
+
+  /**
+   * SaleRecord upsert
+   */
+  export type SaleRecordUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SaleRecord
+     */
+    select?: SaleRecordSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SaleRecordInclude<ExtArgs> | null
+    /**
+     * The filter to search for the SaleRecord to update in case it exists.
+     */
+    where: SaleRecordWhereUniqueInput
+    /**
+     * In case the SaleRecord found by the `where` argument doesn't exist, create a new SaleRecord with this data.
+     */
+    create: XOR<SaleRecordCreateInput, SaleRecordUncheckedCreateInput>
+    /**
+     * In case the SaleRecord was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<SaleRecordUpdateInput, SaleRecordUncheckedUpdateInput>
+  }
+
+  /**
+   * SaleRecord delete
+   */
+  export type SaleRecordDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SaleRecord
+     */
+    select?: SaleRecordSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SaleRecordInclude<ExtArgs> | null
+    /**
+     * Filter which SaleRecord to delete.
+     */
+    where: SaleRecordWhereUniqueInput
+  }
+
+  /**
+   * SaleRecord deleteMany
+   */
+  export type SaleRecordDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which SaleRecords to delete
+     */
+    where?: SaleRecordWhereInput
+  }
+
+  /**
+   * SaleRecord without action
+   */
+  export type SaleRecordDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the SaleRecord
+     */
+    select?: SaleRecordSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: SaleRecordInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -10637,6 +11773,7 @@ export namespace Prisma {
     id: 'id',
     instanceId: 'instanceId',
     jid: 'jid',
+    isIgnored: 'isIgnored',
     firstSeen: 'firstSeen'
   };
 
@@ -10647,6 +11784,7 @@ export namespace Prisma {
     id: 'id',
     contactId: 'contactId',
     status: 'status',
+    value: 'value',
     score: 'score',
     contextSummary: 'contextSummary',
     lastInteraction: 'lastInteraction',
@@ -10691,6 +11829,17 @@ export namespace Prisma {
   export type ProcessedMessageScalarFieldEnum = (typeof ProcessedMessageScalarFieldEnum)[keyof typeof ProcessedMessageScalarFieldEnum]
 
 
+  export const SaleRecordScalarFieldEnum: {
+    id: 'id',
+    contactId: 'contactId',
+    value: 'value',
+    closedAt: 'closedAt',
+    instanceId: 'instanceId'
+  };
+
+  export type SaleRecordScalarFieldEnum = (typeof SaleRecordScalarFieldEnum)[keyof typeof SaleRecordScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -10730,6 +11879,13 @@ export namespace Prisma {
    * Reference to a field of type 'Int'
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
+    
+
+
+  /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -11065,18 +12221,22 @@ export namespace Prisma {
     id?: StringFilter<"Contact"> | string
     instanceId?: StringFilter<"Contact"> | string
     jid?: StringFilter<"Contact"> | string
+    isIgnored?: BoolFilter<"Contact"> | boolean
     firstSeen?: DateTimeFilter<"Contact"> | Date | string
     instance?: XOR<EvolutionInstanceRelationFilter, EvolutionInstanceWhereInput>
     lead?: XOR<LeadNullableRelationFilter, LeadWhereInput> | null
+    sales?: SaleRecordListRelationFilter
   }
 
   export type ContactOrderByWithRelationInput = {
     id?: SortOrder
     instanceId?: SortOrder
     jid?: SortOrder
+    isIgnored?: SortOrder
     firstSeen?: SortOrder
     instance?: EvolutionInstanceOrderByWithRelationInput
     lead?: LeadOrderByWithRelationInput
+    sales?: SaleRecordOrderByRelationAggregateInput
   }
 
   export type ContactWhereUniqueInput = Prisma.AtLeast<{
@@ -11087,15 +12247,18 @@ export namespace Prisma {
     NOT?: ContactWhereInput | ContactWhereInput[]
     instanceId?: StringFilter<"Contact"> | string
     jid?: StringFilter<"Contact"> | string
+    isIgnored?: BoolFilter<"Contact"> | boolean
     firstSeen?: DateTimeFilter<"Contact"> | Date | string
     instance?: XOR<EvolutionInstanceRelationFilter, EvolutionInstanceWhereInput>
     lead?: XOR<LeadNullableRelationFilter, LeadWhereInput> | null
+    sales?: SaleRecordListRelationFilter
   }, "id" | "instanceId_jid">
 
   export type ContactOrderByWithAggregationInput = {
     id?: SortOrder
     instanceId?: SortOrder
     jid?: SortOrder
+    isIgnored?: SortOrder
     firstSeen?: SortOrder
     _count?: ContactCountOrderByAggregateInput
     _max?: ContactMaxOrderByAggregateInput
@@ -11109,6 +12272,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Contact"> | string
     instanceId?: StringWithAggregatesFilter<"Contact"> | string
     jid?: StringWithAggregatesFilter<"Contact"> | string
+    isIgnored?: BoolWithAggregatesFilter<"Contact"> | boolean
     firstSeen?: DateTimeWithAggregatesFilter<"Contact"> | Date | string
   }
 
@@ -11119,6 +12283,7 @@ export namespace Prisma {
     id?: StringFilter<"Lead"> | string
     contactId?: StringFilter<"Lead"> | string
     status?: StringFilter<"Lead"> | string
+    value?: FloatFilter<"Lead"> | number
     score?: IntFilter<"Lead"> | number
     contextSummary?: StringNullableFilter<"Lead"> | string | null
     lastInteraction?: DateTimeFilter<"Lead"> | Date | string
@@ -11132,6 +12297,7 @@ export namespace Prisma {
     id?: SortOrder
     contactId?: SortOrder
     status?: SortOrder
+    value?: SortOrder
     score?: SortOrder
     contextSummary?: SortOrderInput | SortOrder
     lastInteraction?: SortOrder
@@ -11148,6 +12314,7 @@ export namespace Prisma {
     OR?: LeadWhereInput[]
     NOT?: LeadWhereInput | LeadWhereInput[]
     status?: StringFilter<"Lead"> | string
+    value?: FloatFilter<"Lead"> | number
     score?: IntFilter<"Lead"> | number
     contextSummary?: StringNullableFilter<"Lead"> | string | null
     lastInteraction?: DateTimeFilter<"Lead"> | Date | string
@@ -11161,6 +12328,7 @@ export namespace Prisma {
     id?: SortOrder
     contactId?: SortOrder
     status?: SortOrder
+    value?: SortOrder
     score?: SortOrder
     contextSummary?: SortOrderInput | SortOrder
     lastInteraction?: SortOrder
@@ -11180,6 +12348,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Lead"> | string
     contactId?: StringWithAggregatesFilter<"Lead"> | string
     status?: StringWithAggregatesFilter<"Lead"> | string
+    value?: FloatWithAggregatesFilter<"Lead"> | number
     score?: IntWithAggregatesFilter<"Lead"> | number
     contextSummary?: StringNullableWithAggregatesFilter<"Lead"> | string | null
     lastInteraction?: DateTimeWithAggregatesFilter<"Lead"> | Date | string
@@ -11357,6 +12526,63 @@ export namespace Prisma {
     direction?: StringWithAggregatesFilter<"ProcessedMessage"> | string
     timestamp?: DateTimeWithAggregatesFilter<"ProcessedMessage"> | Date | string
     createdAt?: DateTimeWithAggregatesFilter<"ProcessedMessage"> | Date | string
+  }
+
+  export type SaleRecordWhereInput = {
+    AND?: SaleRecordWhereInput | SaleRecordWhereInput[]
+    OR?: SaleRecordWhereInput[]
+    NOT?: SaleRecordWhereInput | SaleRecordWhereInput[]
+    id?: StringFilter<"SaleRecord"> | string
+    contactId?: StringFilter<"SaleRecord"> | string
+    value?: FloatFilter<"SaleRecord"> | number
+    closedAt?: DateTimeFilter<"SaleRecord"> | Date | string
+    instanceId?: StringFilter<"SaleRecord"> | string
+    contact?: XOR<ContactRelationFilter, ContactWhereInput>
+  }
+
+  export type SaleRecordOrderByWithRelationInput = {
+    id?: SortOrder
+    contactId?: SortOrder
+    value?: SortOrder
+    closedAt?: SortOrder
+    instanceId?: SortOrder
+    contact?: ContactOrderByWithRelationInput
+  }
+
+  export type SaleRecordWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: SaleRecordWhereInput | SaleRecordWhereInput[]
+    OR?: SaleRecordWhereInput[]
+    NOT?: SaleRecordWhereInput | SaleRecordWhereInput[]
+    contactId?: StringFilter<"SaleRecord"> | string
+    value?: FloatFilter<"SaleRecord"> | number
+    closedAt?: DateTimeFilter<"SaleRecord"> | Date | string
+    instanceId?: StringFilter<"SaleRecord"> | string
+    contact?: XOR<ContactRelationFilter, ContactWhereInput>
+  }, "id">
+
+  export type SaleRecordOrderByWithAggregationInput = {
+    id?: SortOrder
+    contactId?: SortOrder
+    value?: SortOrder
+    closedAt?: SortOrder
+    instanceId?: SortOrder
+    _count?: SaleRecordCountOrderByAggregateInput
+    _avg?: SaleRecordAvgOrderByAggregateInput
+    _max?: SaleRecordMaxOrderByAggregateInput
+    _min?: SaleRecordMinOrderByAggregateInput
+    _sum?: SaleRecordSumOrderByAggregateInput
+  }
+
+  export type SaleRecordScalarWhereWithAggregatesInput = {
+    AND?: SaleRecordScalarWhereWithAggregatesInput | SaleRecordScalarWhereWithAggregatesInput[]
+    OR?: SaleRecordScalarWhereWithAggregatesInput[]
+    NOT?: SaleRecordScalarWhereWithAggregatesInput | SaleRecordScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"SaleRecord"> | string
+    contactId?: StringWithAggregatesFilter<"SaleRecord"> | string
+    value?: FloatWithAggregatesFilter<"SaleRecord"> | number
+    closedAt?: DateTimeWithAggregatesFilter<"SaleRecord"> | Date | string
+    instanceId?: StringWithAggregatesFilter<"SaleRecord"> | string
   }
 
   export type DeviceCreateInput = {
@@ -11712,45 +12938,55 @@ export namespace Prisma {
   export type ContactCreateInput = {
     id?: string
     jid: string
+    isIgnored?: boolean
     firstSeen?: Date | string
     instance: EvolutionInstanceCreateNestedOneWithoutContactsInput
     lead?: LeadCreateNestedOneWithoutContactInput
+    sales?: SaleRecordCreateNestedManyWithoutContactInput
   }
 
   export type ContactUncheckedCreateInput = {
     id?: string
     instanceId: string
     jid: string
+    isIgnored?: boolean
     firstSeen?: Date | string
     lead?: LeadUncheckedCreateNestedOneWithoutContactInput
+    sales?: SaleRecordUncheckedCreateNestedManyWithoutContactInput
   }
 
   export type ContactUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     jid?: StringFieldUpdateOperationsInput | string
+    isIgnored?: BoolFieldUpdateOperationsInput | boolean
     firstSeen?: DateTimeFieldUpdateOperationsInput | Date | string
     instance?: EvolutionInstanceUpdateOneRequiredWithoutContactsNestedInput
     lead?: LeadUpdateOneWithoutContactNestedInput
+    sales?: SaleRecordUpdateManyWithoutContactNestedInput
   }
 
   export type ContactUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     instanceId?: StringFieldUpdateOperationsInput | string
     jid?: StringFieldUpdateOperationsInput | string
+    isIgnored?: BoolFieldUpdateOperationsInput | boolean
     firstSeen?: DateTimeFieldUpdateOperationsInput | Date | string
     lead?: LeadUncheckedUpdateOneWithoutContactNestedInput
+    sales?: SaleRecordUncheckedUpdateManyWithoutContactNestedInput
   }
 
   export type ContactCreateManyInput = {
     id?: string
     instanceId: string
     jid: string
+    isIgnored?: boolean
     firstSeen?: Date | string
   }
 
   export type ContactUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     jid?: StringFieldUpdateOperationsInput | string
+    isIgnored?: BoolFieldUpdateOperationsInput | boolean
     firstSeen?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -11758,12 +12994,14 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     instanceId?: StringFieldUpdateOperationsInput | string
     jid?: StringFieldUpdateOperationsInput | string
+    isIgnored?: BoolFieldUpdateOperationsInput | boolean
     firstSeen?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type LeadCreateInput = {
     id?: string
     status?: string
+    value?: number
     score?: number
     contextSummary?: string | null
     lastInteraction?: Date | string
@@ -11777,6 +13015,7 @@ export namespace Prisma {
     id?: string
     contactId: string
     status?: string
+    value?: number
     score?: number
     contextSummary?: string | null
     lastInteraction?: Date | string
@@ -11788,6 +13027,7 @@ export namespace Prisma {
   export type LeadUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
     score?: IntFieldUpdateOperationsInput | number
     contextSummary?: NullableStringFieldUpdateOperationsInput | string | null
     lastInteraction?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -11801,6 +13041,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     contactId?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
     score?: IntFieldUpdateOperationsInput | number
     contextSummary?: NullableStringFieldUpdateOperationsInput | string | null
     lastInteraction?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -11813,6 +13054,7 @@ export namespace Prisma {
     id?: string
     contactId: string
     status?: string
+    value?: number
     score?: number
     contextSummary?: string | null
     lastInteraction?: Date | string
@@ -11823,6 +13065,7 @@ export namespace Prisma {
   export type LeadUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
     score?: IntFieldUpdateOperationsInput | number
     contextSummary?: NullableStringFieldUpdateOperationsInput | string | null
     lastInteraction?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -11834,6 +13077,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     contactId?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
     score?: IntFieldUpdateOperationsInput | number
     contextSummary?: NullableStringFieldUpdateOperationsInput | string | null
     lastInteraction?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -12011,6 +13255,61 @@ export namespace Prisma {
     direction?: StringFieldUpdateOperationsInput | string
     timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type SaleRecordCreateInput = {
+    id?: string
+    value: number
+    closedAt?: Date | string
+    instanceId: string
+    contact: ContactCreateNestedOneWithoutSalesInput
+  }
+
+  export type SaleRecordUncheckedCreateInput = {
+    id?: string
+    contactId: string
+    value: number
+    closedAt?: Date | string
+    instanceId: string
+  }
+
+  export type SaleRecordUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
+    closedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    instanceId?: StringFieldUpdateOperationsInput | string
+    contact?: ContactUpdateOneRequiredWithoutSalesNestedInput
+  }
+
+  export type SaleRecordUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contactId?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
+    closedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    instanceId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type SaleRecordCreateManyInput = {
+    id?: string
+    contactId: string
+    value: number
+    closedAt?: Date | string
+    instanceId: string
+  }
+
+  export type SaleRecordUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
+    closedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    instanceId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type SaleRecordUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    contactId?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
+    closedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    instanceId?: StringFieldUpdateOperationsInput | string
   }
 
   export type StringFilter<$PrismaModel = never> = {
@@ -12401,9 +13700,24 @@ export namespace Prisma {
     callDuration?: SortOrder
   }
 
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type LeadNullableRelationFilter = {
     is?: LeadWhereInput | null
     isNot?: LeadWhereInput | null
+  }
+
+  export type SaleRecordListRelationFilter = {
+    every?: SaleRecordWhereInput
+    some?: SaleRecordWhereInput
+    none?: SaleRecordWhereInput
+  }
+
+  export type SaleRecordOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type ContactInstanceIdJidCompoundUniqueInput = {
@@ -12415,6 +13729,7 @@ export namespace Prisma {
     id?: SortOrder
     instanceId?: SortOrder
     jid?: SortOrder
+    isIgnored?: SortOrder
     firstSeen?: SortOrder
   }
 
@@ -12422,6 +13737,7 @@ export namespace Prisma {
     id?: SortOrder
     instanceId?: SortOrder
     jid?: SortOrder
+    isIgnored?: SortOrder
     firstSeen?: SortOrder
   }
 
@@ -12429,7 +13745,27 @@ export namespace Prisma {
     id?: SortOrder
     instanceId?: SortOrder
     jid?: SortOrder
+    isIgnored?: SortOrder
     firstSeen?: SortOrder
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type FloatFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatFilter<$PrismaModel> | number
   }
 
   export type ContactRelationFilter = {
@@ -12451,6 +13787,7 @@ export namespace Prisma {
     id?: SortOrder
     contactId?: SortOrder
     status?: SortOrder
+    value?: SortOrder
     score?: SortOrder
     contextSummary?: SortOrder
     lastInteraction?: SortOrder
@@ -12459,6 +13796,7 @@ export namespace Prisma {
   }
 
   export type LeadAvgOrderByAggregateInput = {
+    value?: SortOrder
     score?: SortOrder
   }
 
@@ -12466,6 +13804,7 @@ export namespace Prisma {
     id?: SortOrder
     contactId?: SortOrder
     status?: SortOrder
+    value?: SortOrder
     score?: SortOrder
     contextSummary?: SortOrder
     lastInteraction?: SortOrder
@@ -12477,6 +13816,7 @@ export namespace Prisma {
     id?: SortOrder
     contactId?: SortOrder
     status?: SortOrder
+    value?: SortOrder
     score?: SortOrder
     contextSummary?: SortOrder
     lastInteraction?: SortOrder
@@ -12485,7 +13825,24 @@ export namespace Prisma {
   }
 
   export type LeadSumOrderByAggregateInput = {
+    value?: SortOrder
     score?: SortOrder
+  }
+
+  export type FloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
   }
 
   export type LeadRelationFilter = {
@@ -12577,6 +13934,38 @@ export namespace Prisma {
     direction?: SortOrder
     timestamp?: SortOrder
     createdAt?: SortOrder
+  }
+
+  export type SaleRecordCountOrderByAggregateInput = {
+    id?: SortOrder
+    contactId?: SortOrder
+    value?: SortOrder
+    closedAt?: SortOrder
+    instanceId?: SortOrder
+  }
+
+  export type SaleRecordAvgOrderByAggregateInput = {
+    value?: SortOrder
+  }
+
+  export type SaleRecordMaxOrderByAggregateInput = {
+    id?: SortOrder
+    contactId?: SortOrder
+    value?: SortOrder
+    closedAt?: SortOrder
+    instanceId?: SortOrder
+  }
+
+  export type SaleRecordMinOrderByAggregateInput = {
+    id?: SortOrder
+    contactId?: SortOrder
+    value?: SortOrder
+    closedAt?: SortOrder
+    instanceId?: SortOrder
+  }
+
+  export type SaleRecordSumOrderByAggregateInput = {
+    value?: SortOrder
   }
 
   export type CallLogCreateNestedManyWithoutDeviceInput = {
@@ -12901,10 +14290,28 @@ export namespace Prisma {
     connect?: LeadWhereUniqueInput
   }
 
+  export type SaleRecordCreateNestedManyWithoutContactInput = {
+    create?: XOR<SaleRecordCreateWithoutContactInput, SaleRecordUncheckedCreateWithoutContactInput> | SaleRecordCreateWithoutContactInput[] | SaleRecordUncheckedCreateWithoutContactInput[]
+    connectOrCreate?: SaleRecordCreateOrConnectWithoutContactInput | SaleRecordCreateOrConnectWithoutContactInput[]
+    createMany?: SaleRecordCreateManyContactInputEnvelope
+    connect?: SaleRecordWhereUniqueInput | SaleRecordWhereUniqueInput[]
+  }
+
   export type LeadUncheckedCreateNestedOneWithoutContactInput = {
     create?: XOR<LeadCreateWithoutContactInput, LeadUncheckedCreateWithoutContactInput>
     connectOrCreate?: LeadCreateOrConnectWithoutContactInput
     connect?: LeadWhereUniqueInput
+  }
+
+  export type SaleRecordUncheckedCreateNestedManyWithoutContactInput = {
+    create?: XOR<SaleRecordCreateWithoutContactInput, SaleRecordUncheckedCreateWithoutContactInput> | SaleRecordCreateWithoutContactInput[] | SaleRecordUncheckedCreateWithoutContactInput[]
+    connectOrCreate?: SaleRecordCreateOrConnectWithoutContactInput | SaleRecordCreateOrConnectWithoutContactInput[]
+    createMany?: SaleRecordCreateManyContactInputEnvelope
+    connect?: SaleRecordWhereUniqueInput | SaleRecordWhereUniqueInput[]
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
   }
 
   export type EvolutionInstanceUpdateOneRequiredWithoutContactsNestedInput = {
@@ -12925,6 +14332,20 @@ export namespace Prisma {
     update?: XOR<XOR<LeadUpdateToOneWithWhereWithoutContactInput, LeadUpdateWithoutContactInput>, LeadUncheckedUpdateWithoutContactInput>
   }
 
+  export type SaleRecordUpdateManyWithoutContactNestedInput = {
+    create?: XOR<SaleRecordCreateWithoutContactInput, SaleRecordUncheckedCreateWithoutContactInput> | SaleRecordCreateWithoutContactInput[] | SaleRecordUncheckedCreateWithoutContactInput[]
+    connectOrCreate?: SaleRecordCreateOrConnectWithoutContactInput | SaleRecordCreateOrConnectWithoutContactInput[]
+    upsert?: SaleRecordUpsertWithWhereUniqueWithoutContactInput | SaleRecordUpsertWithWhereUniqueWithoutContactInput[]
+    createMany?: SaleRecordCreateManyContactInputEnvelope
+    set?: SaleRecordWhereUniqueInput | SaleRecordWhereUniqueInput[]
+    disconnect?: SaleRecordWhereUniqueInput | SaleRecordWhereUniqueInput[]
+    delete?: SaleRecordWhereUniqueInput | SaleRecordWhereUniqueInput[]
+    connect?: SaleRecordWhereUniqueInput | SaleRecordWhereUniqueInput[]
+    update?: SaleRecordUpdateWithWhereUniqueWithoutContactInput | SaleRecordUpdateWithWhereUniqueWithoutContactInput[]
+    updateMany?: SaleRecordUpdateManyWithWhereWithoutContactInput | SaleRecordUpdateManyWithWhereWithoutContactInput[]
+    deleteMany?: SaleRecordScalarWhereInput | SaleRecordScalarWhereInput[]
+  }
+
   export type LeadUncheckedUpdateOneWithoutContactNestedInput = {
     create?: XOR<LeadCreateWithoutContactInput, LeadUncheckedCreateWithoutContactInput>
     connectOrCreate?: LeadCreateOrConnectWithoutContactInput
@@ -12933,6 +14354,20 @@ export namespace Prisma {
     delete?: LeadWhereInput | boolean
     connect?: LeadWhereUniqueInput
     update?: XOR<XOR<LeadUpdateToOneWithWhereWithoutContactInput, LeadUpdateWithoutContactInput>, LeadUncheckedUpdateWithoutContactInput>
+  }
+
+  export type SaleRecordUncheckedUpdateManyWithoutContactNestedInput = {
+    create?: XOR<SaleRecordCreateWithoutContactInput, SaleRecordUncheckedCreateWithoutContactInput> | SaleRecordCreateWithoutContactInput[] | SaleRecordUncheckedCreateWithoutContactInput[]
+    connectOrCreate?: SaleRecordCreateOrConnectWithoutContactInput | SaleRecordCreateOrConnectWithoutContactInput[]
+    upsert?: SaleRecordUpsertWithWhereUniqueWithoutContactInput | SaleRecordUpsertWithWhereUniqueWithoutContactInput[]
+    createMany?: SaleRecordCreateManyContactInputEnvelope
+    set?: SaleRecordWhereUniqueInput | SaleRecordWhereUniqueInput[]
+    disconnect?: SaleRecordWhereUniqueInput | SaleRecordWhereUniqueInput[]
+    delete?: SaleRecordWhereUniqueInput | SaleRecordWhereUniqueInput[]
+    connect?: SaleRecordWhereUniqueInput | SaleRecordWhereUniqueInput[]
+    update?: SaleRecordUpdateWithWhereUniqueWithoutContactInput | SaleRecordUpdateWithWhereUniqueWithoutContactInput[]
+    updateMany?: SaleRecordUpdateManyWithWhereWithoutContactInput | SaleRecordUpdateManyWithWhereWithoutContactInput[]
+    deleteMany?: SaleRecordScalarWhereInput | SaleRecordScalarWhereInput[]
   }
 
   export type ContactCreateNestedOneWithoutLeadInput = {
@@ -12953,6 +14388,14 @@ export namespace Prisma {
     connectOrCreate?: NoteCreateOrConnectWithoutLeadInput | NoteCreateOrConnectWithoutLeadInput[]
     createMany?: NoteCreateManyLeadInputEnvelope
     connect?: NoteWhereUniqueInput | NoteWhereUniqueInput[]
+  }
+
+  export type FloatFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type ContactUpdateOneRequiredWithoutLeadNestedInput = {
@@ -13031,6 +14474,20 @@ export namespace Prisma {
     upsert?: EvolutionInstanceUpsertWithoutProcessedMessagesInput
     connect?: EvolutionInstanceWhereUniqueInput
     update?: XOR<XOR<EvolutionInstanceUpdateToOneWithWhereWithoutProcessedMessagesInput, EvolutionInstanceUpdateWithoutProcessedMessagesInput>, EvolutionInstanceUncheckedUpdateWithoutProcessedMessagesInput>
+  }
+
+  export type ContactCreateNestedOneWithoutSalesInput = {
+    create?: XOR<ContactCreateWithoutSalesInput, ContactUncheckedCreateWithoutSalesInput>
+    connectOrCreate?: ContactCreateOrConnectWithoutSalesInput
+    connect?: ContactWhereUniqueInput
+  }
+
+  export type ContactUpdateOneRequiredWithoutSalesNestedInput = {
+    create?: XOR<ContactCreateWithoutSalesInput, ContactUncheckedCreateWithoutSalesInput>
+    connectOrCreate?: ContactCreateOrConnectWithoutSalesInput
+    upsert?: ContactUpsertWithoutSalesInput
+    connect?: ContactWhereUniqueInput
+    update?: XOR<XOR<ContactUpdateToOneWithWhereWithoutSalesInput, ContactUpdateWithoutSalesInput>, ContactUncheckedUpdateWithoutSalesInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -13192,6 +14649,35 @@ export namespace Prisma {
     gt?: number | FloatFieldRefInput<$PrismaModel>
     gte?: number | FloatFieldRefInput<$PrismaModel>
     not?: NestedFloatFilter<$PrismaModel> | number
+  }
+
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type NestedFloatWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel>
+    in?: number[]
+    notIn?: number[]
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedFloatFilter<$PrismaModel>
+    _min?: NestedFloatFilter<$PrismaModel>
+    _max?: NestedFloatFilter<$PrismaModel>
   }
 
   export type CallLogCreateWithoutDeviceInput = {
@@ -13388,15 +14874,19 @@ export namespace Prisma {
   export type ContactCreateWithoutInstanceInput = {
     id?: string
     jid: string
+    isIgnored?: boolean
     firstSeen?: Date | string
     lead?: LeadCreateNestedOneWithoutContactInput
+    sales?: SaleRecordCreateNestedManyWithoutContactInput
   }
 
   export type ContactUncheckedCreateWithoutInstanceInput = {
     id?: string
     jid: string
+    isIgnored?: boolean
     firstSeen?: Date | string
     lead?: LeadUncheckedCreateNestedOneWithoutContactInput
+    sales?: SaleRecordUncheckedCreateNestedManyWithoutContactInput
   }
 
   export type ContactCreateOrConnectWithoutInstanceInput = {
@@ -13541,6 +15031,7 @@ export namespace Prisma {
     id?: StringFilter<"Contact"> | string
     instanceId?: StringFilter<"Contact"> | string
     jid?: StringFilter<"Contact"> | string
+    isIgnored?: BoolFilter<"Contact"> | boolean
     firstSeen?: DateTimeFilter<"Contact"> | Date | string
   }
 
@@ -13783,6 +15274,7 @@ export namespace Prisma {
   export type LeadCreateWithoutContactInput = {
     id?: string
     status?: string
+    value?: number
     score?: number
     contextSummary?: string | null
     lastInteraction?: Date | string
@@ -13794,6 +15286,7 @@ export namespace Prisma {
   export type LeadUncheckedCreateWithoutContactInput = {
     id?: string
     status?: string
+    value?: number
     score?: number
     contextSummary?: string | null
     lastInteraction?: Date | string
@@ -13805,6 +15298,29 @@ export namespace Prisma {
   export type LeadCreateOrConnectWithoutContactInput = {
     where: LeadWhereUniqueInput
     create: XOR<LeadCreateWithoutContactInput, LeadUncheckedCreateWithoutContactInput>
+  }
+
+  export type SaleRecordCreateWithoutContactInput = {
+    id?: string
+    value: number
+    closedAt?: Date | string
+    instanceId: string
+  }
+
+  export type SaleRecordUncheckedCreateWithoutContactInput = {
+    id?: string
+    value: number
+    closedAt?: Date | string
+    instanceId: string
+  }
+
+  export type SaleRecordCreateOrConnectWithoutContactInput = {
+    where: SaleRecordWhereUniqueInput
+    create: XOR<SaleRecordCreateWithoutContactInput, SaleRecordUncheckedCreateWithoutContactInput>
+  }
+
+  export type SaleRecordCreateManyContactInputEnvelope = {
+    data: SaleRecordCreateManyContactInput | SaleRecordCreateManyContactInput[]
   }
 
   export type EvolutionInstanceUpsertWithoutContactsInput = {
@@ -13864,6 +15380,7 @@ export namespace Prisma {
   export type LeadUpdateWithoutContactInput = {
     id?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
     score?: IntFieldUpdateOperationsInput | number
     contextSummary?: NullableStringFieldUpdateOperationsInput | string | null
     lastInteraction?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -13875,6 +15392,7 @@ export namespace Prisma {
   export type LeadUncheckedUpdateWithoutContactInput = {
     id?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
     score?: IntFieldUpdateOperationsInput | number
     contextSummary?: NullableStringFieldUpdateOperationsInput | string | null
     lastInteraction?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -13883,18 +15401,49 @@ export namespace Prisma {
     notes?: NoteUncheckedUpdateManyWithoutLeadNestedInput
   }
 
+  export type SaleRecordUpsertWithWhereUniqueWithoutContactInput = {
+    where: SaleRecordWhereUniqueInput
+    update: XOR<SaleRecordUpdateWithoutContactInput, SaleRecordUncheckedUpdateWithoutContactInput>
+    create: XOR<SaleRecordCreateWithoutContactInput, SaleRecordUncheckedCreateWithoutContactInput>
+  }
+
+  export type SaleRecordUpdateWithWhereUniqueWithoutContactInput = {
+    where: SaleRecordWhereUniqueInput
+    data: XOR<SaleRecordUpdateWithoutContactInput, SaleRecordUncheckedUpdateWithoutContactInput>
+  }
+
+  export type SaleRecordUpdateManyWithWhereWithoutContactInput = {
+    where: SaleRecordScalarWhereInput
+    data: XOR<SaleRecordUpdateManyMutationInput, SaleRecordUncheckedUpdateManyWithoutContactInput>
+  }
+
+  export type SaleRecordScalarWhereInput = {
+    AND?: SaleRecordScalarWhereInput | SaleRecordScalarWhereInput[]
+    OR?: SaleRecordScalarWhereInput[]
+    NOT?: SaleRecordScalarWhereInput | SaleRecordScalarWhereInput[]
+    id?: StringFilter<"SaleRecord"> | string
+    contactId?: StringFilter<"SaleRecord"> | string
+    value?: FloatFilter<"SaleRecord"> | number
+    closedAt?: DateTimeFilter<"SaleRecord"> | Date | string
+    instanceId?: StringFilter<"SaleRecord"> | string
+  }
+
   export type ContactCreateWithoutLeadInput = {
     id?: string
     jid: string
+    isIgnored?: boolean
     firstSeen?: Date | string
     instance: EvolutionInstanceCreateNestedOneWithoutContactsInput
+    sales?: SaleRecordCreateNestedManyWithoutContactInput
   }
 
   export type ContactUncheckedCreateWithoutLeadInput = {
     id?: string
     instanceId: string
     jid: string
+    isIgnored?: boolean
     firstSeen?: Date | string
+    sales?: SaleRecordUncheckedCreateNestedManyWithoutContactInput
   }
 
   export type ContactCreateOrConnectWithoutLeadInput = {
@@ -13937,15 +15486,19 @@ export namespace Prisma {
   export type ContactUpdateWithoutLeadInput = {
     id?: StringFieldUpdateOperationsInput | string
     jid?: StringFieldUpdateOperationsInput | string
+    isIgnored?: BoolFieldUpdateOperationsInput | boolean
     firstSeen?: DateTimeFieldUpdateOperationsInput | Date | string
     instance?: EvolutionInstanceUpdateOneRequiredWithoutContactsNestedInput
+    sales?: SaleRecordUpdateManyWithoutContactNestedInput
   }
 
   export type ContactUncheckedUpdateWithoutLeadInput = {
     id?: StringFieldUpdateOperationsInput | string
     instanceId?: StringFieldUpdateOperationsInput | string
     jid?: StringFieldUpdateOperationsInput | string
+    isIgnored?: BoolFieldUpdateOperationsInput | boolean
     firstSeen?: DateTimeFieldUpdateOperationsInput | Date | string
+    sales?: SaleRecordUncheckedUpdateManyWithoutContactNestedInput
   }
 
   export type NoteUpsertWithWhereUniqueWithoutLeadInput = {
@@ -13977,6 +15530,7 @@ export namespace Prisma {
   export type LeadCreateWithoutNotesInput = {
     id?: string
     status?: string
+    value?: number
     score?: number
     contextSummary?: string | null
     lastInteraction?: Date | string
@@ -13989,6 +15543,7 @@ export namespace Prisma {
     id?: string
     contactId: string
     status?: string
+    value?: number
     score?: number
     contextSummary?: string | null
     lastInteraction?: Date | string
@@ -14015,6 +15570,7 @@ export namespace Prisma {
   export type LeadUpdateWithoutNotesInput = {
     id?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
     score?: IntFieldUpdateOperationsInput | number
     contextSummary?: NullableStringFieldUpdateOperationsInput | string | null
     lastInteraction?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14027,6 +15583,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     contactId?: StringFieldUpdateOperationsInput | string
     status?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
     score?: IntFieldUpdateOperationsInput | number
     contextSummary?: NullableStringFieldUpdateOperationsInput | string | null
     lastInteraction?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -14194,6 +15751,58 @@ export namespace Prisma {
     metrics?: DailyMetricUncheckedUpdateManyWithoutInstanceNestedInput
   }
 
+  export type ContactCreateWithoutSalesInput = {
+    id?: string
+    jid: string
+    isIgnored?: boolean
+    firstSeen?: Date | string
+    instance: EvolutionInstanceCreateNestedOneWithoutContactsInput
+    lead?: LeadCreateNestedOneWithoutContactInput
+  }
+
+  export type ContactUncheckedCreateWithoutSalesInput = {
+    id?: string
+    instanceId: string
+    jid: string
+    isIgnored?: boolean
+    firstSeen?: Date | string
+    lead?: LeadUncheckedCreateNestedOneWithoutContactInput
+  }
+
+  export type ContactCreateOrConnectWithoutSalesInput = {
+    where: ContactWhereUniqueInput
+    create: XOR<ContactCreateWithoutSalesInput, ContactUncheckedCreateWithoutSalesInput>
+  }
+
+  export type ContactUpsertWithoutSalesInput = {
+    update: XOR<ContactUpdateWithoutSalesInput, ContactUncheckedUpdateWithoutSalesInput>
+    create: XOR<ContactCreateWithoutSalesInput, ContactUncheckedCreateWithoutSalesInput>
+    where?: ContactWhereInput
+  }
+
+  export type ContactUpdateToOneWithWhereWithoutSalesInput = {
+    where?: ContactWhereInput
+    data: XOR<ContactUpdateWithoutSalesInput, ContactUncheckedUpdateWithoutSalesInput>
+  }
+
+  export type ContactUpdateWithoutSalesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    jid?: StringFieldUpdateOperationsInput | string
+    isIgnored?: BoolFieldUpdateOperationsInput | boolean
+    firstSeen?: DateTimeFieldUpdateOperationsInput | Date | string
+    instance?: EvolutionInstanceUpdateOneRequiredWithoutContactsNestedInput
+    lead?: LeadUpdateOneWithoutContactNestedInput
+  }
+
+  export type ContactUncheckedUpdateWithoutSalesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    instanceId?: StringFieldUpdateOperationsInput | string
+    jid?: StringFieldUpdateOperationsInput | string
+    isIgnored?: BoolFieldUpdateOperationsInput | boolean
+    firstSeen?: DateTimeFieldUpdateOperationsInput | Date | string
+    lead?: LeadUncheckedUpdateOneWithoutContactNestedInput
+  }
+
   export type CallLogCreateManyDeviceInput = {
     id?: string
     person: string
@@ -14237,6 +15846,7 @@ export namespace Prisma {
   export type ContactCreateManyInstanceInput = {
     id?: string
     jid: string
+    isIgnored?: boolean
     firstSeen?: Date | string
   }
 
@@ -14273,20 +15883,25 @@ export namespace Prisma {
   export type ContactUpdateWithoutInstanceInput = {
     id?: StringFieldUpdateOperationsInput | string
     jid?: StringFieldUpdateOperationsInput | string
+    isIgnored?: BoolFieldUpdateOperationsInput | boolean
     firstSeen?: DateTimeFieldUpdateOperationsInput | Date | string
     lead?: LeadUpdateOneWithoutContactNestedInput
+    sales?: SaleRecordUpdateManyWithoutContactNestedInput
   }
 
   export type ContactUncheckedUpdateWithoutInstanceInput = {
     id?: StringFieldUpdateOperationsInput | string
     jid?: StringFieldUpdateOperationsInput | string
+    isIgnored?: BoolFieldUpdateOperationsInput | boolean
     firstSeen?: DateTimeFieldUpdateOperationsInput | Date | string
     lead?: LeadUncheckedUpdateOneWithoutContactNestedInput
+    sales?: SaleRecordUncheckedUpdateManyWithoutContactNestedInput
   }
 
   export type ContactUncheckedUpdateManyWithoutInstanceInput = {
     id?: StringFieldUpdateOperationsInput | string
     jid?: StringFieldUpdateOperationsInput | string
+    isIgnored?: BoolFieldUpdateOperationsInput | boolean
     firstSeen?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -14380,6 +15995,34 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type SaleRecordCreateManyContactInput = {
+    id?: string
+    value: number
+    closedAt?: Date | string
+    instanceId: string
+  }
+
+  export type SaleRecordUpdateWithoutContactInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
+    closedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    instanceId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type SaleRecordUncheckedUpdateWithoutContactInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
+    closedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    instanceId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type SaleRecordUncheckedUpdateManyWithoutContactInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    value?: FloatFieldUpdateOperationsInput | number
+    closedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    instanceId?: StringFieldUpdateOperationsInput | string
+  }
+
   export type NoteCreateManyLeadInput = {
     id?: string
     content: string
@@ -14417,6 +16060,10 @@ export namespace Prisma {
      * @deprecated Use EvolutionInstanceCountOutputTypeDefaultArgs instead
      */
     export type EvolutionInstanceCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = EvolutionInstanceCountOutputTypeDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use ContactCountOutputTypeDefaultArgs instead
+     */
+    export type ContactCountOutputTypeArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ContactCountOutputTypeDefaultArgs<ExtArgs>
     /**
      * @deprecated Use LeadCountOutputTypeDefaultArgs instead
      */
@@ -14457,6 +16104,10 @@ export namespace Prisma {
      * @deprecated Use ProcessedMessageDefaultArgs instead
      */
     export type ProcessedMessageArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = ProcessedMessageDefaultArgs<ExtArgs>
+    /**
+     * @deprecated Use SaleRecordDefaultArgs instead
+     */
+    export type SaleRecordArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = SaleRecordDefaultArgs<ExtArgs>
 
   /**
    * Batch Payload for updateMany & deleteMany & createMany

@@ -73,4 +73,8 @@ export interface LeadWithContact extends Lead {
 export interface CRMData {
     leads: LeadWithContact[];
     instances: EvolutionInstance[];
+    financialMetrics: {
+        pipelineTotal: number;
+        revenueTotal: number;
+    };
 }

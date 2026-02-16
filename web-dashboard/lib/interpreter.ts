@@ -80,7 +80,7 @@ export async function updateLeadStatus(instanceId: string, jid: string, content:
         include: { lead: true }
     });
 
-    if (!contact) return;
+    if (!contact || contact.isIgnored) return;
 
     let finalStatus = interpretation.status;
     let summary = interpretation.reason;
@@ -101,7 +101,8 @@ export async function updateLeadStatus(instanceId: string, jid: string, content:
     await prisma.lead.upsert({
         where: { contactId: contact.id },
         update: {
-            status: finalStatus,
+            status: contact.lead?.status === 'FECHADO' || contact.lead?.status === 'PERDIDO' ? 'ATENDIMENTO' : finalStatus,
+            value: contact.lead?.status === 'FECHADO' || contact.lead?.status === 'PERDIDO' ? 0 : undefined,
             contextSummary: summary,
             lastInteraction: new Date()
         },

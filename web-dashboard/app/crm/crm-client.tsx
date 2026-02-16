@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { CRMData, LeadWithContact, LeadStatus } from '@/lib/types';
-import { updateLeadStatusAction, addNote } from '../crm-actions';
+import { updateLeadStatusAction, addNote, updateLeadValueAction, toggleIgnoreContactAction } from '../crm-actions';
 import {
     Users,
     MessageSquare,
@@ -14,7 +14,10 @@ import {
     MoreHorizontal,
     Phone,
     User,
-    ArrowLeft
+    ArrowLeft,
+    DollarSign,
+    Trash2,
+    ShieldOff
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -53,9 +56,29 @@ export default function CRMClient({ initialData }: CRMClientProps) {
         }
     };
 
+    const handleUpdateValue = async (leadId: string, value: number) => {
+        try {
+            await updateLeadValueAction(leadId, value);
+            setLeads(prev => prev.map(l => l.id === leadId ? { ...l, value } : l));
+        } catch (error) {
+            console.error('Erro ao atualizar valor:', error);
+        }
+    };
+
+    const handleIgnoreContact = async (jid: string) => {
+        if (!confirm('Deseja ignorar este contato em todas as instâncias? Ele será removido do CRM.')) return;
+
+        try {
+            await toggleIgnoreContactAction(jid, true);
+            setLeads(prev => prev.filter(l => l.contact.jid !== jid));
+        } catch (error) {
+            console.error('Erro ao ignorar contato:', error);
+        }
+    };
+
     return (
         <div className="p-6 space-y-6">
-            <header className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="flex items-center gap-4">
                     <Link href="/" className="p-2 hover:bg-white rounded-full transition-colors border">
                         <ArrowLeft className="w-5 h-5 text-slate-600" />
@@ -66,28 +89,61 @@ export default function CRMClient({ initialData }: CRMClientProps) {
                     </div>
                 </div>
 
-                <div className="relative w-full md:w-72">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <input
-                        type="text"
-                        placeholder="Buscar JID ou resumo..."
-                        className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-sm"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
+                <div className="flex flex-wrap items-center gap-4">
+                    <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl border border-slate-200">
+                        <div className="p-2 bg-blue-50 rounded-lg">
+                            <Plus className="w-4 h-4 text-blue-500" />
+                        </div>
+                        <div>
+                            <p className="text-[10px] uppercase font-bold text-slate-400">Pipeline Aberto</p>
+                            <p className="text-sm font-black text-slate-900">
+                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(initialData.financialMetrics.pipelineTotal)}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-xl border border-slate-200">
+                        <div className="p-2 bg-emerald-50 rounded-lg">
+                            <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+                        </div>
+                        <div>
+                            <p className="text-[10px] uppercase font-bold text-slate-400">Vendas Fechadas</p>
+                            <p className="text-sm font-black text-slate-900">
+                                {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(initialData.financialMetrics.revenueTotal)}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="relative w-full md:w-64">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                        <input
+                            type="text"
+                            placeholder="Buscar JID ou resumo..."
+                            className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition-all text-sm"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
+                    </div>
                 </div>
             </header>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 overflow-x-auto pb-4">
                 {STATUS_COLUMNS.map(col => (
                     <div key={col.id} className="flex flex-col gap-4 min-w-[280px]">
-                        <div className="flex items-center justify-between px-2">
-                            <div className="flex items-center gap-2">
-                                <div className={`w-2 h-2 rounded-full ${col.color}`} />
-                                <h2 className="font-semibold text-slate-700">{col.label}</h2>
-                                <span className="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full font-medium">
-                                    {filteredLeads.filter(l => l.status === col.id).length}
-                                </span>
+                        <div className="flex flex-col gap-2 px-2">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <div className={`w-2 h-2 rounded-full ${col.color}`} />
+                                    <h2 className="font-semibold text-slate-700">{col.label}</h2>
+                                    <span className="text-xs bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full font-medium">
+                                        {filteredLeads.filter(l => l.status === col.id).length}
+                                    </span>
+                                </div>
+                            </div>
+                            <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                Total: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                                    filteredLeads.filter(l => l.status === col.id).reduce((acc, curr) => acc + (curr.value || 0), 0)
+                                )}
                             </div>
                         </div>
 
@@ -107,9 +163,32 @@ export default function CRMClient({ initialData }: CRMClientProps) {
                                                 <span className="text-xs text-slate-400">{lead.contact.instance.name}</span>
                                             </div>
                                         </div>
-                                        <button className="p-1 text-slate-400 hover:text-slate-600 rounded-md hover:bg-slate-100 transition-colors">
-                                            <MoreHorizontal className="w-4 h-4" />
-                                        </button>
+                                        <div className="flex items-center gap-1.5">
+                                            <button
+                                                onClick={() => handleIgnoreContact(lead.contact.jid)}
+                                                className="p-1 text-slate-300 hover:text-red-500 rounded-md hover:bg-red-50 transition-all"
+                                                title="Ignorar Contato Globalmente"
+                                            >
+                                                <ShieldOff className="w-3.5 h-3.5" />
+                                            </button>
+                                            <button className="p-1 text-slate-400 hover:text-slate-600 rounded-md hover:bg-slate-100 transition-colors">
+                                                <MoreHorizontal className="w-4 h-4" />
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    {/* Campo de Valor */}
+                                    <div className="relative mb-3 group/value">
+                                        <div className="absolute left-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1 text-slate-400 pointer-events-none">
+                                            <span className="text-[10px] font-bold">R$</span>
+                                        </div>
+                                        <input
+                                            type="number"
+                                            className="w-full pl-8 pr-2 py-1.5 bg-slate-50 border border-slate-100 rounded-lg text-xs font-bold text-teal-700 focus:outline-none focus:ring-2 focus:ring-teal-500/10 focus:border-teal-500 transition-all placeholder:text-slate-300"
+                                            placeholder="0,00"
+                                            value={lead.value || ''}
+                                            onChange={(e) => handleUpdateValue(lead.id, parseFloat(e.target.value) || 0)}
+                                        />
                                     </div>
 
                                     {lead.contextSummary && (

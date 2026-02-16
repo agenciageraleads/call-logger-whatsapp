@@ -71,9 +71,11 @@ model Contact {
   id         String            @id @default(cuid())
   instanceId String
   jid        String
+  isIgnored  Boolean           @default(false)
   firstSeen  DateTime          @default(now())
   instance   EvolutionInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
   lead       Lead?
+  sales      SaleRecord[]
 
   @@unique([instanceId, jid])
 }
@@ -82,6 +84,7 @@ model Lead {
   id              String   @id @default(cuid())
   contactId       String   @unique
   status          String   @default("NOVO") // NOVO, ATENDIMENTO, FECHADO, PERDIDO
+  value           Float    @default(0)
   score           Int      @default(0)
   contextSummary  String?
   lastInteraction DateTime @default(now())
@@ -121,4 +124,13 @@ model ProcessedMessage {
   instance   EvolutionInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
 
   @@unique([instanceId, messageId])
+}
+
+model SaleRecord {
+  id         String   @id @default(cuid())
+  contactId  String
+  value      Float
+  closedAt   DateTime @default(now())
+  instanceId String
+  contact    Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
 }

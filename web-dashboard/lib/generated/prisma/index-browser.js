@@ -170,6 +170,7 @@ exports.Prisma.ContactScalarFieldEnum = {
   id: 'id',
   instanceId: 'instanceId',
   jid: 'jid',
+  isIgnored: 'isIgnored',
   firstSeen: 'firstSeen'
 };
 
@@ -177,6 +178,7 @@ exports.Prisma.LeadScalarFieldEnum = {
   id: 'id',
   contactId: 'contactId',
   status: 'status',
+  value: 'value',
   score: 'score',
   contextSummary: 'contextSummary',
   lastInteraction: 'lastInteraction',
@@ -209,6 +211,14 @@ exports.Prisma.ProcessedMessageScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.SaleRecordScalarFieldEnum = {
+  id: 'id',
+  contactId: 'contactId',
+  value: 'value',
+  closedAt: 'closedAt',
+  instanceId: 'instanceId'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -229,7 +239,8 @@ exports.Prisma.ModelName = {
   Lead: 'Lead',
   Note: 'Note',
   DailyConversation: 'DailyConversation',
-  ProcessedMessage: 'ProcessedMessage'
+  ProcessedMessage: 'ProcessedMessage',
+  SaleRecord: 'SaleRecord'
 };
 
 /**
