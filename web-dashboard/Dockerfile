@@ -53,6 +53,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nextjs:nodejs /app/deploy.sh ./deploy.sh
 RUN chmod +x deploy.sh
 
+# Install prisma CLI globally to avoid "Killed" on runtime downloads
+USER root
+RUN npm install -g prisma
 USER nextjs
 
 EXPOSE 3000
