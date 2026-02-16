@@ -6,26 +6,34 @@ on:
     paths:
       - 'web-dashboard/**'
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+    permissions:
+      contents: read
+      packages: write
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Log in to Docker Hub
+    - name: Log in to the Container registry
       uses: docker/login-action@v2
       with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
       with:
         context: ./web-dashboard
         push: true
-        tags: lucasborgessb/whatsapp-call-logger:latest
+        tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
   deploy:
     needs: build
@@ -38,8 +46,7 @@ jobs:
         username: ${{ secrets.VPS_USER }}
         password: ${{ secrets.VPS_PASSWORD }}
         script: |
-          docker pull lucasborgessb/whatsapp-call-logger:latest
-          # Como você está usando Swarm (labels traefik e replicas), usamos stack deploy
-          # Mas se for compose simples, o comando abaixo resolve:
-          docker compose -f /path/to/your/docker-compose.yml up -d whatsapp-logger
-          # NOTA: Ajustaremos o comando do script conforme o local do seu compose na VPS.
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            docker pull ghcr.io/${{ github.repository }}:latest
+            # Atualize o caminho abaixo se necessário
+            docker compose -f /home/${{ secrets.VPS_USER }}/whatsapp-logger/docker-compose.yml up -d
