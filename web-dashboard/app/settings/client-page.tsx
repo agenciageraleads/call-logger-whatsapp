@@ -246,68 +246,65 @@ export default function SettingsPageClient({
                                         <td className="px-6 py-4 font-mono text-xs text-gray-500">{inst.instanceId}</td>
                                         <td className="px-6 py-4">
                                             {inst.device ? (
-                                                <div className="flex items-center gap-2 text-green-600 font-medium bg-green-50 dark:bg-green-900/20 px-3 py-1 rounded-full w-fit">
-                                                    <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-                                                    {inst.device.name || inst.device.id}
+                                                <div className="flex items-center gap-2">
+                                                    <div className="flex items-center gap-2 text-green-600 font-medium bg-green-50 dark:bg-green-900/20 px-3 py-1 rounded-full w-fit">
+                                                        <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                                                        {inst.device.name || inst.device.id}
+                                                    </div>
+                                                    <button
+                                                        onClick={() => handleUnlink(inst.id)}
+                                                        disabled={isPending}
+                                                        className="text-red-500 hover:text-red-700 text-[10px] font-bold uppercase tracking-wider"
+                                                        title={t('settings.instTable.unlink')}
+                                                    >
+                                                        [x]
+                                                    </button>
                                                 </div>
                                             ) : (
-                                                <span className="text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20 px-3 py-1 rounded-full text-xs font-medium">
-                                                    {t('settings.instTable.notLinked')}
-                                                </span>
+                                                <select
+                                                    onChange={(e) => handleLink(inst.id, e.target.value)}
+                                                    disabled={isPending}
+                                                    className="text-xs p-1 rounded border border-gray-300 dark:border-zinc-700 bg-white dark:bg-black w-full max-w-[150px]"
+                                                    defaultValue=""
+                                                >
+                                                    <option value="" disabled>{t('settings.instTable.selectAndroid')}</option>
+                                                    {devices
+                                                        .filter(d => !d.evolutionInstance || d.evolutionInstance.id === inst.id)
+                                                        .map(d => (
+                                                            <option key={d.id} value={d.id}>
+                                                                {d.name || d.id}
+                                                            </option>
+                                                        ))}
+                                                </select>
                                             )}
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            {inst.device ? (
+                                            <div className="flex items-center justify-end gap-2">
                                                 <button
-                                                    onClick={() => handleUnlink(inst.id)}
+                                                    onClick={() => handleProvision(inst.id)}
                                                     disabled={isPending}
-                                                    className="text-red-500 hover:text-red-700 text-xs font-medium border border-red-200 dark:border-red-900/30 px-3 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
+                                                    className="text-xs font-bold text-blue-600 border border-blue-200 dark:border-blue-900/30 px-3 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-colors"
+                                                    title="Busca QR code e sincroniza Webhook"
                                                 >
-                                                    {t('settings.instTable.unlink')}
+                                                    {t('settings.instTable.connectQR')}
                                                 </button>
-                                            ) : (
-                                                <div className="flex items-center justify-end gap-2">
-                                                    <button
-                                                        onClick={() => handleProvision(inst.id)}
-                                                        disabled={isPending}
-                                                        className="text-xs font-bold text-blue-600 border border-blue-200 dark:border-blue-900/30 px-3 py-1 rounded hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-colors"
-                                                        title="Cria a instância na Evolution (se necessário), configura webhook e busca QR code"
-                                                    >
-                                                        {t('settings.instTable.connectQR')}
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleLogout(inst.id)}
-                                                        disabled={isPending}
-                                                        className="text-xs font-medium text-amber-600 border border-amber-200 dark:border-amber-900/30 px-3 py-1 rounded hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-colors"
-                                                        title="Desconecta o WhatsApp da Evolution API"
-                                                    >
-                                                        {t('settings.instTable.disconnect')}
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDelete(inst.id)}
-                                                        disabled={isPending}
-                                                        className="text-xs font-medium text-red-600 border border-red-200 dark:border-red-200 px-3 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
-                                                        title="Excluir do dashboard"
-                                                    >
-                                                        {t('settings.instTable.delete')}
-                                                    </button>
-                                                    <select
-                                                        onChange={(e) => handleLink(inst.id, e.target.value)}
-                                                        disabled={isPending}
-                                                        className="text-xs p-1 rounded border border-gray-300 dark:border-zinc-700 bg-white dark:bg-black"
-                                                        defaultValue=""
-                                                    >
-                                                        <option value="" disabled>{t('settings.instTable.selectAndroid')}</option>
-                                                        {devices
-                                                            .filter(d => !d.evolutionInstance || d.evolutionInstance.id === inst.id)
-                                                            .map(d => (
-                                                                <option key={d.id} value={d.id}>
-                                                                    {d.name || d.id} (Visto: {d.lastSeen ? new Date(d.lastSeen).toLocaleDateString() : 'Nunca'})
-                                                                </option>
-                                                            ))}
-                                                    </select>
-                                                </div>
-                                            )}
+                                                <button
+                                                    onClick={() => handleLogout(inst.id)}
+                                                    disabled={isPending}
+                                                    className="text-xs font-medium text-amber-600 border border-amber-200 dark:border-amber-900/30 px-3 py-1 rounded hover:bg-amber-50 dark:hover:bg-amber-900/10 transition-colors"
+                                                    title="Desconecta o WhatsApp"
+                                                >
+                                                    {t('settings.instTable.disconnect')}
+                                                </button>
+                                                <button
+                                                    onClick={() => handleDelete(inst.id)}
+                                                    disabled={isPending}
+                                                    className="text-xs font-medium text-red-600 border border-red-200 dark:border-red-200 px-3 py-1 rounded hover:bg-red-50 dark:hover:bg-red-900/10 transition-colors"
+                                                    title="Excluir do dashboard"
+                                                >
+                                                    {t('settings.instTable.delete')}
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                     {(() => {
