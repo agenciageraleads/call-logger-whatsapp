@@ -1,9 +1,6 @@
 -- AlterTable
 ALTER TABLE "Contact" ADD COLUMN "isIgnored" BOOLEAN NOT NULL DEFAULT false;
 
--- AlterTable
-ALTER TABLE "Lead" ADD COLUMN "value" REAL NOT NULL DEFAULT 0;
-
 -- CreateTable
 CREATE TABLE "Lead" (
     "id" TEXT NOT NULL PRIMARY KEY,
