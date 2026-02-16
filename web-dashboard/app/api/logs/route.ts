@@ -45,7 +45,7 @@ export async function POST(request: Request) {
       where: { deviceId: device.id },
     });
 
-    if (evolutionInstance) {
+    if (evolutionInstance && status !== 'ONGOING') {
       const callDate = new Date(Number(timestamp) || Date.now());
       callDate.setHours(0, 0, 0, 0);
 

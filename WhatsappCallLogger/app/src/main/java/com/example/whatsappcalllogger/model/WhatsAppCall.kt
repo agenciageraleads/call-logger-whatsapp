@@ -9,7 +9,8 @@ enum class CallStatus {
     MISSED,
     RECEIVED,
     DIALED,
-    PENDING
+    PENDING,
+    ONGOING
 }
 
 data class WhatsAppCall(

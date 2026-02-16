@@ -141,7 +141,7 @@ export async function getFinancialMetrics() {
     });
 
     return {
-        pipelineTotal: pipeline._sum.value || 0,
-        revenueTotal: sales._sum.value || 0
+        pipelineTotal: pipeline?._sum?.value || 0,
+        revenueTotal: sales?._sum?.value || 0
     };
 }
