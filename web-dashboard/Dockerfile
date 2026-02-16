@@ -55,7 +55,7 @@ RUN chmod +x deploy.sh
 
 # Install prisma CLI globally to avoid "Killed" on runtime downloads
 USER root
-RUN npm install -g prisma
+RUN npm install -g prisma@5.22.0
 USER nextjs
 
 EXPOSE 3000
