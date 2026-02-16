@@ -5,7 +5,7 @@ echo "Starting deployment script..."
 
 # Apply migrations
 echo "Applying database migrations..."
-if npx prisma migrate deploy; then
+if prisma migrate deploy; then
   echo "Migrations applied successfully."
 else
   echo "Error applying migrations. Check your database connection and schema."
