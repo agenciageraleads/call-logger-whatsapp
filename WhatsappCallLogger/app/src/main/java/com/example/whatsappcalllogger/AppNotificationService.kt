@@ -79,6 +79,10 @@ class AppNotificationService : NotificationListenerService() {
                         callTime = System.currentTimeMillis(),
                         callDuration = 0
                     )
+                    
+                    // --- Real-time Notification Trigger ---
+                    // Envia um log preliminar com status "ONGOING" para o dashboard saber que há uma chamada agora
+                    saveAndSync(onGoingCall!!, "ONGOING")
                 }
             }
         }
@@ -124,7 +128,7 @@ class AppNotificationService : NotificationListenerService() {
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent)
     }
 
-    private fun saveAndSync(call: WhatsAppCall) {
+    private fun saveAndSync(call: WhatsAppCall, forcedStatus: String? = null) {
         CoroutineScope(Dispatchers.IO).launch {
             val database = AppDatabase.getDatabase(applicationContext)
             
@@ -132,13 +136,13 @@ class AppNotificationService : NotificationListenerService() {
                 callPerson = call.callPerson,
                 callDuration = call.callDuration,
                 callType = call.callType.name,
-                callStatus = call.callStatus.name,
+                callStatus = forcedStatus ?: call.callStatus.name,
                 callTime = call.callTime,
                 isSynced = false
             )
             
             database.callLogDao().insert(entity)
-            Log.d("AppNotificationService", "Log saved to Room. Triggering Worker.")
+            Log.d("AppNotificationService", "Log saved (${forcedStatus ?: "FINAL"}). Triggering Worker.")
             
             val syncRequest = OneTimeWorkRequest.Builder(SyncWorker::class.java).build()
             WorkManager.getInstance(applicationContext).enqueue(syncRequest)

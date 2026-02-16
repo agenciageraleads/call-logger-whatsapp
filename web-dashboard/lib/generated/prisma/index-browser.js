@@ -173,6 +173,24 @@ exports.Prisma.ContactScalarFieldEnum = {
   firstSeen: 'firstSeen'
 };
 
+exports.Prisma.LeadScalarFieldEnum = {
+  id: 'id',
+  contactId: 'contactId',
+  status: 'status',
+  score: 'score',
+  contextSummary: 'contextSummary',
+  lastInteraction: 'lastInteraction',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.NoteScalarFieldEnum = {
+  id: 'id',
+  leadId: 'leadId',
+  content: 'content',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.DailyConversationScalarFieldEnum = {
   id: 'id',
   date: 'date',
@@ -208,6 +226,8 @@ exports.Prisma.ModelName = {
   EvolutionInstance: 'EvolutionInstance',
   DailyMetric: 'DailyMetric',
   Contact: 'Contact',
+  Lead: 'Lead',
+  Note: 'Note',
   DailyConversation: 'DailyConversation',
   ProcessedMessage: 'ProcessedMessage'
 };

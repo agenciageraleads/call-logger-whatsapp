@@ -85,6 +85,15 @@ export default function DashboardClient({ initialData }: DashboardClientProps) {
                         className="flex items-center gap-3"
                     >
                         <Link
+                            href="/crm"
+                            className="group flex items-center gap-2 px-6 py-4 bg-teal-600 text-white border border-teal-500 rounded-full text-sm font-bold hover:bg-teal-700 transition-all shadow-md active:scale-95 min-h-[44px]"
+                            aria-label="Abrir CRM"
+                        >
+                            <Users size={20} className="group-hover:scale-110 transition-transform" />
+                            CRM (Vendas)
+                        </Link>
+
+                        <Link
                             href="/settings"
                             className="group flex items-center gap-2 px-6 py-4 bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-full text-sm font-bold hover:border-slate-400 dark:hover:border-zinc-600 transition-all shadow-md active:scale-95 min-h-[44px]"
                             aria-label={t('dashboard.settings')}

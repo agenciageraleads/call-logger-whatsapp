@@ -3,9 +3,9 @@
  * @description Definições de tipos globais para o dashboard para garantir segurança de tipos e remover 'any'.
  */
 
-import { EvolutionInstance, Device, DailyMetric } from './generated/prisma';
+import { EvolutionInstance, Device, DailyMetric, Lead, Note, Contact } from './generated/prisma';
 
-export type { EvolutionInstance, Device, DailyMetric };
+export type { EvolutionInstance, Device, DailyMetric, Lead, Note, Contact };
 
 export interface KPIData {
     callsMade: number;
@@ -61,4 +61,16 @@ export interface SettingsPageClientProps {
     unlinkDevice: (instanceId: string) => Promise<{ success: boolean }>;
     logoutInstance: (instanceId: string) => Promise<{ success: boolean }>;
     deleteInstance: (instanceId: string) => Promise<{ success: boolean }>;
+}
+
+export interface LeadWithContact extends Lead {
+    contact: Contact & {
+        instance: EvolutionInstance;
+    };
+    notes: Note[];
+}
+
+export interface CRMData {
+    leads: LeadWithContact[];
+    instances: EvolutionInstance[];
 }

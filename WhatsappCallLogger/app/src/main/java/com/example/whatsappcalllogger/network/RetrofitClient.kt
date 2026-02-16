@@ -6,7 +6,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
-    private const val BASE_URL = "http://192.168.100.120:3000/" // IP Local do Computador (Porta 3000 do Next.js)
+    private const val BASE_URL = "https://calllogger.gera-leads.com/" // Servidor de Produção
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY

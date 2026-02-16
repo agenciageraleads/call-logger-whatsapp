@@ -73,8 +73,30 @@ model Contact {
   jid        String
   firstSeen  DateTime          @default(now())
   instance   EvolutionInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  lead       Lead?
 
   @@unique([instanceId, jid])
+}
+
+model Lead {
+  id              String   @id @default(cuid())
+  contactId       String   @unique
+  status          String   @default("NOVO") // NOVO, ATENDIMENTO, FECHADO, PERDIDO
+  score           Int      @default(0)
+  contextSummary  String?
+  lastInteraction DateTime @default(now())
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  contact         Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  notes           Note[]
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  leadId    String
+  content   String
+  createdAt DateTime @default(now())
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
 }
 
 model DailyConversation {

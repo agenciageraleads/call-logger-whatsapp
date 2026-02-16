@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { PrismaClient } from '@/lib/generated/prisma';
+import { updateLeadStatus } from '@/lib/interpreter';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -166,6 +167,21 @@ export async function POST(req: Request) {
           } catch (e) {
             if (!isUniqueViolation(e)) throw e;
           }
+
+          // --- Início da Evolução CRM (Interpretação de Leads) ---
+          const messageContent = (msg as any)?.message?.conversation ||
+            (msg as any)?.message?.extendedTextMessage?.text ||
+            (msg as any)?.text ||
+            "";
+
+          if (messageContent) {
+            // Executamos de forma assíncrona fora da transação principal para não travar o webhook em caso de lentidão na IA
+            // Mas passamos as refs necessárias para garantir a atualização
+            updateLeadStatus(evolutionInstance.id, String(remoteJid), messageContent).catch(err =>
+              console.error('Erro ao processar Lead:', err)
+            );
+          }
+          // --- Fim da Evolução CRM ---
         }
 
         if (sentCount === 0 && receivedCount === 0 && newContacts === 0 && newConversations === 0) {
