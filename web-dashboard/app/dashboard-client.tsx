@@ -11,8 +11,10 @@ import {
 } from 'recharts';
 import {
     MessageSquare, Users, Send, PhoneCall, Clock,
-    Settings, ChevronRight, ArrowUpRight, ArrowDownLeft
+    Settings, ChevronRight, ArrowUpRight, ArrowDownLeft, LogOut
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { logoutAction } from '@/app/login/actions';
 import { DashboardClientProps, MetricWithInstance } from '@/lib/types';
 import { t } from '@/lib/i18n';
 
@@ -23,6 +25,12 @@ import { t } from '@/lib/i18n';
 export default function DashboardClient({ initialData }: DashboardClientProps) {
     const [data] = useState(initialData);
     const [selectedInstanceId, setSelectedInstanceId] = useState<string | null>(null);
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        await logoutAction();
+        router.push('/login');
+    };
 
     // Dados reais vindos do servidor filtrados por instância se selecionado
     const selectedMetric = selectedInstanceId
@@ -101,6 +109,14 @@ export default function DashboardClient({ initialData }: DashboardClientProps) {
                             <Settings size={20} className="group-hover:rotate-45 transition-transform" />
                             {t('dashboard.settings')}
                         </Link>
+
+                        <button
+                            onClick={handleLogout}
+                            className="group flex items-center gap-2 px-4 py-4 bg-red-50 text-red-600 border border-red-100 rounded-full text-sm font-bold hover:bg-red-100 transition-all shadow-md active:scale-95 min-h-[44px]"
+                            aria-label="Sair"
+                        >
+                            <LogOut size={20} />
+                        </button>
                     </motion.div>
                 </header>
 

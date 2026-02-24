@@ -33,6 +33,7 @@ model CallLog {
 
 model EvolutionInstance {
   id                String              @id @default(cuid())
+  companyId         String?
   name              String
   instanceId        String              @unique
   phoneNumber       String?
@@ -45,6 +46,7 @@ model EvolutionInstance {
   contacts          Contact[]
   conversations     DailyConversation[]
   metrics           DailyMetric[]
+  company           Company?            @relation(fields: [companyId], references: [id], onDelete: Cascade)
   device            Device?             @relation(fields: [deviceId], references: [id])
   processedMessages ProcessedMessage[]
 }
@@ -71,27 +73,55 @@ model Contact {
   id         String            @id @default(cuid())
   instanceId String
   jid        String
+  pushName   String?
   isIgnored  Boolean           @default(false)
   firstSeen  DateTime          @default(now())
-  instance   EvolutionInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
-  lead       Lead?
-  sales      SaleRecord[]
+  instance    EvolutionInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  lead        Lead?
+  sales       SaleRecord[]
+  attachments Attachment[]
 
   @@unique([instanceId, jid])
 }
 
+model Attachment {
+  id        String   @id @default(cuid())
+  leadId    String
+  contactId String?
+  fileName  String
+  fileUrl   String
+  fileType  String?
+  fileSize  Int?
+  createdAt DateTime @default(now())
+  lead      Lead?    @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  contact   Contact? @relation(fields: [contactId], references: [id], onDelete: Cascade)
+}
+
 model Lead {
-  id              String            @id @default(cuid())
-  contactId       String            @unique
-  status          String            @default("NOVO") // NOVO, ATENDIMENTO, FECHADO, PERDIDO
-  value           Float             @default(0)
-  score           Int               @default(0)
-  contextSummary  String?
-  lastInteraction DateTime          @default(now())
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
-  contact         Contact           @relation(fields: [contactId], references: [id], onDelete: Cascade)
-  notes           Note[]
+  id                  String            @id @default(cuid())
+  contactId           String            @unique
+  status              String            @default("NOVO") // NOVO, ATENDIMENTO, FECHADO, PERDIDO
+  value               Float             @default(0)
+  score               Int               @default(0)
+  contextSummary      String?
+  toonContext         String?
+  unprocessedMessages Int               @default(0)
+  lastInteraction     DateTime          @default(now())
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  contact             Contact           @relation(fields: [contactId], references: [id], onDelete: Cascade)
+  notes               Note[]
+  attachments         Attachment[]
+  messages            Message[]
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  leadId    String
+  content   String
+  fromMe    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  lead      Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
 }
 
 model Note {
@@ -133,4 +163,28 @@ model SaleRecord {
   closedAt   DateTime @default(now())
   instanceId String
   contact    Contact  @relation(fields: [contactId], references: [id], onDelete: Cascade)
+}
+
+model Company {
+  id           String   @id @default(cuid())
+  name         String
+  cnpj         String?
+  address      String?
+  billingEmail String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  users        User[]
+  instances    EvolutionInstance[]
+}
+
+model User {
+  id        String   @id @default(cuid())
+  companyId String
+  name      String
+  email     String   @unique
+  password  String
+  role      String   @default("USER") // ADMIN, MANAGER, USER
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
 }

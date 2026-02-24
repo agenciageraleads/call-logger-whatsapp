@@ -7,7 +7,7 @@ vi.mock('@/lib/prisma', () => ({
 
 import { POST } from '@/app/api/webhooks/evolution/route';
 import { NextResponse } from 'next/server';
-import { Prisma } from '@/app/generated/prisma/index';
+import { Prisma } from '@/lib/generated/prisma';
 
 describe('Evolution API Webhook', () => {
     beforeEach(() => {

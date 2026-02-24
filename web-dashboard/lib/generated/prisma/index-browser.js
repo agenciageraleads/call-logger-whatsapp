@@ -140,6 +140,7 @@ exports.Prisma.CallLogScalarFieldEnum = {
 
 exports.Prisma.EvolutionInstanceScalarFieldEnum = {
   id: 'id',
+  companyId: 'companyId',
   name: 'name',
   instanceId: 'instanceId',
   phoneNumber: 'phoneNumber',
@@ -170,8 +171,20 @@ exports.Prisma.ContactScalarFieldEnum = {
   id: 'id',
   instanceId: 'instanceId',
   jid: 'jid',
+  pushName: 'pushName',
   isIgnored: 'isIgnored',
   firstSeen: 'firstSeen'
+};
+
+exports.Prisma.AttachmentScalarFieldEnum = {
+  id: 'id',
+  leadId: 'leadId',
+  contactId: 'contactId',
+  fileName: 'fileName',
+  fileUrl: 'fileUrl',
+  fileType: 'fileType',
+  fileSize: 'fileSize',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.LeadScalarFieldEnum = {
@@ -181,9 +194,19 @@ exports.Prisma.LeadScalarFieldEnum = {
   value: 'value',
   score: 'score',
   contextSummary: 'contextSummary',
+  toonContext: 'toonContext',
+  unprocessedMessages: 'unprocessedMessages',
   lastInteraction: 'lastInteraction',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
+};
+
+exports.Prisma.MessageScalarFieldEnum = {
+  id: 'id',
+  leadId: 'leadId',
+  content: 'content',
+  fromMe: 'fromMe',
+  createdAt: 'createdAt'
 };
 
 exports.Prisma.NoteScalarFieldEnum = {
@@ -219,6 +242,27 @@ exports.Prisma.SaleRecordScalarFieldEnum = {
   instanceId: 'instanceId'
 };
 
+exports.Prisma.CompanyScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  cnpj: 'cnpj',
+  address: 'address',
+  billingEmail: 'billingEmail',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.UserScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  name: 'name',
+  email: 'email',
+  password: 'password',
+  role: 'role',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -236,11 +280,15 @@ exports.Prisma.ModelName = {
   EvolutionInstance: 'EvolutionInstance',
   DailyMetric: 'DailyMetric',
   Contact: 'Contact',
+  Attachment: 'Attachment',
   Lead: 'Lead',
+  Message: 'Message',
   Note: 'Note',
   DailyConversation: 'DailyConversation',
   ProcessedMessage: 'ProcessedMessage',
-  SaleRecord: 'SaleRecord'
+  SaleRecord: 'SaleRecord',
+  Company: 'Company',
+  User: 'User'
 };
 
 /**

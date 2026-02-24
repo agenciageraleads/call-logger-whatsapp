@@ -1,7 +1,8 @@
 'use server'
 
 import { prisma } from '@/lib/prisma';
-import { CRMData, LeadWithContact, LeadStatus } from '@/lib/types';
+import { CRMData, LeadWithContact } from '@/lib/types';
+import { LeadStatus } from '@/lib/interpreter';
 import { revalidatePath } from 'next/cache';
 
 /**
@@ -20,7 +21,12 @@ export async function getCRMData(): Promise<CRMData> {
                     instance: true
                 }
             },
-            notes: true
+            notes: true,
+            attachments: true,
+            messages: {
+                orderBy: { createdAt: 'desc' },
+                take: 1
+            }
         },
         orderBy: {
             updatedAt: 'desc'
@@ -143,5 +149,103 @@ export async function getFinancialMetrics() {
     return {
         pipelineTotal: pipeline?._sum?.value || 0,
         revenueTotal: sales?._sum?.value || 0
+    };
+}
+
+/**
+ * Atualiza diversos detalhes de um lead a partir do modal de edição
+ */
+export async function updateLeadDetailsAction(leadId: string, data: {
+    status?: LeadStatus;
+    value?: number;
+    contextSummary?: string;
+}) {
+    const prevLead = await prisma.lead.findUnique({ where: { id: leadId }, include: { contact: true } });
+    if (!prevLead) return { success: false, error: 'Lead não encontrado' };
+
+    await prisma.lead.update({
+        where: { id: leadId },
+        data: {
+            ...data,
+            updatedAt: new Date()
+        }
+    });
+
+    // Se a venda foi fechada por essa atualização e antes não era
+    if (data.status === 'FECHADO' && prevLead.status !== 'FECHADO' && (data.value || prevLead.value)) {
+        await prisma.saleRecord.create({
+            data: {
+                contactId: prevLead.contactId,
+                value: data.value ?? prevLead.value,
+                instanceId: prevLead.contact.instanceId
+            }
+        });
+    }
+
+    revalidatePath('/crm');
+    return { success: true };
+}
+
+/**
+ * Adiciona um anexo ao lead (ex: Orçamento em Base64 ou Link)
+ */
+export async function uploadAttachmentAction(leadId: string, fileData: { fileName: string, fileUrl: string, fileType: string, fileSize: number }) {
+    await prisma.attachment.create({
+        data: {
+            leadId,
+            fileName: fileData.fileName,
+            fileUrl: fileData.fileUrl,
+            fileType: fileData.fileType,
+            fileSize: fileData.fileSize
+        }
+    });
+
+    revalidatePath('/crm');
+    return { success: true };
+}
+
+/**
+ * Retorna os Insights de Gestão da Plataforma baseando-se no tempo de resposta
+ */
+export async function getManagerInsights() {
+    // 1. Achar Tempo Médio de Resposta (SLA)
+    // Calculado encontrando a diferença entre a mensagem do cliente e a PRIMEIRA mensagem subsequente do vendedor
+    const allLeadsWithMessages = await prisma.lead.findMany({
+        include: {
+            messages: {
+                orderBy: { createdAt: 'asc' }
+            }
+        }
+    });
+
+    let totalResponseTimeMs = 0;
+    let responseCount = 0;
+
+    for (const lead of allLeadsWithMessages) {
+        let lastCustomerMessageDate: Date | null = null;
+
+        for (const msg of lead.messages) {
+            if (!msg.fromMe) {
+                // Cliente falou
+                if (!lastCustomerMessageDate) {
+                    lastCustomerMessageDate = msg.createdAt;
+                }
+            } else {
+                // Vendedor falou
+                if (lastCustomerMessageDate) {
+                    const diffMs = msg.createdAt.getTime() - lastCustomerMessageDate.getTime();
+                    totalResponseTimeMs += diffMs;
+                    responseCount++;
+                    lastCustomerMessageDate = null; // Reseta até o cliente falar de novo
+                }
+            }
+        }
+    }
+
+    const averageResponseTimeMs = responseCount > 0 ? totalResponseTimeMs / responseCount : 0;
+    const averageResponseTimeMinutes = Math.round(averageResponseTimeMs / 1000 / 60);
+
+    return {
+        averageResponseTimeMinutes
     };
 }

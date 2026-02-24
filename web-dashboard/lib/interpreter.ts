@@ -66,15 +66,19 @@ export async function interpretLeadAction(
     }
 
     // 2. Se não houver match claro de fechamento/perda, ou se for interesse ambíguo, sinaliza uso de AI como fallback
-    return { status: 'ATENDIMENTO', score: 20, reason: 'Inconclusivo via Regex', useAI: true };
+    return { status: 'ATENDIMENTO', score: 20, reason: '', useAI: true };
 }
 
 /**
- * Atualiza o status do lead baseado na interpretação
+ * Adiciona uma mensagem na fila do Lead e avalia se o lote deve ser processado.
  */
-export async function updateLeadStatus(instanceId: string, jid: string, content: string) {
-    const interpretation = await interpretLeadAction(instanceId, jid, content);
-
+export async function queueAndProcessLeadMessage(
+    instanceId: string,
+    jid: string,
+    content: string,
+    fromMe: boolean
+) {
+    // 1. Assegurar Contact e Lead
     const contact = await prisma.contact.findUnique({
         where: { instanceId_jid: { instanceId, jid } },
         include: { lead: true }
@@ -82,34 +86,138 @@ export async function updateLeadStatus(instanceId: string, jid: string, content:
 
     if (!contact || contact.isIgnored) return;
 
-    let finalStatus = interpretation.status;
-    let summary = interpretation.reason;
+    const leadId = contact.lead?.id;
 
-    // Fallback para IA se necessário
-    if (interpretation.useAI) {
-        try {
-            const aiResult = await analyzeWithAI(content);
-            if (aiResult) {
-                finalStatus = aiResult.status;
-                summary = aiResult.summary;
+    if (!leadId) {
+        // Create default lead if not exists
+        const newLead = await prisma.lead.create({
+            data: {
+                contactId: contact.id,
+                status: 'NOVO',
+                unprocessedMessages: 1,
             }
-        } catch (error) {
-            console.error('Erro no fallback de IA:', error);
+        });
+        await prisma.message.create({
+            data: { leadId: newLead.id, content, fromMe }
+        });
+        return;
+    }
+
+    // 2. Queue Message and Increment Counters
+    await prisma.$transaction([
+        prisma.message.create({
+            data: { leadId, content, fromMe }
+        }),
+        prisma.lead.update({
+            where: { id: leadId },
+            data: {
+                unprocessedMessages: { increment: 1 },
+                lastInteraction: new Date()
+            }
+        })
+    ]);
+
+    // 3. Checar Gatilho de Processamento
+    const BATCH_SIZE = 10;
+    const currentLead = await prisma.lead.findUnique({ where: { id: leadId } });
+
+    // Avaliação via REGEX imediata (High Priority)
+    let shouldForceFlush = false;
+    let forceStatus: LeadStatus | null = null;
+    let forceReason = '';
+
+    if (!fromMe) {
+        for (const pattern of PATTERNS.FECHADO) {
+            if (pattern.test(content)) {
+                shouldForceFlush = true; forceStatus = 'FECHADO'; forceReason = 'Expressão de Compra Detectada'; break;
+            }
+        }
+        if (!shouldForceFlush) {
+            for (const pattern of PATTERNS.PERDIDO) {
+                if (pattern.test(content)) {
+                    shouldForceFlush = true; forceStatus = 'PERDIDO'; forceReason = 'Expressão de Recusa Detectada'; break;
+                }
+            }
         }
     }
 
-    await prisma.lead.upsert({
-        where: { contactId: contact.id },
-        update: {
-            status: contact.lead?.status === 'FECHADO' || contact.lead?.status === 'PERDIDO' ? 'ATENDIMENTO' : finalStatus,
-            value: contact.lead?.status === 'FECHADO' || contact.lead?.status === 'PERDIDO' ? 0 : undefined,
-            contextSummary: summary,
-            lastInteraction: new Date()
-        },
-        create: {
-            contactId: contact.id,
+    if (shouldForceFlush || (currentLead && currentLead.unprocessedMessages >= BATCH_SIZE)) {
+        // Run Async processing so we don't block the webhook
+        processBatch(leadId, forceStatus, forceReason).catch(err =>
+            console.error('Erro no processamento em Lote (TOON):', err)
+        );
+    }
+}
+
+async function processBatch(leadId: string, forceStatus: LeadStatus | null, forceReason: string) {
+    const lead = await prisma.lead.findUnique({
+        where: { id: leadId },
+        include: { contact: true }
+    });
+
+    if (!lead || lead.contact.isIgnored) return;
+
+    // Buscar as mensagens não processadas (as ultimas criadas)
+    // Se o contador diz 10, pegamos as 10 mais novas
+    const amountToFetch = lead.unprocessedMessages > 0 ? lead.unprocessedMessages : 10;
+
+    const messages = await prisma.message.findMany({
+        where: { leadId: lead.id },
+        orderBy: { createdAt: 'desc' },
+        take: amountToFetch
+    });
+
+    // Ordenar cronologicamente para enviar à IA
+    const orderedMessages = messages.reverse().map(m => `[${m.fromMe ? 'MEU' : 'CLIENTE'}]: ${m.content}`);
+
+    let finalStatus = (lead.status as LeadStatus);
+    let newToonContext = lead.toonContext;
+    let statusWasChangedByAI = false;
+
+    // Se houve Força Ativa por Regex, nós assumimos ela
+    if (forceStatus) {
+        finalStatus = forceStatus;
+        newToonContext = `[MUDANÇA FORÇADA POR REGEX: ${forceReason}]. ` + (lead.toonContext || '');
+    } else {
+        // Se Não houve Força pela Regex, e o lote atingiu limite, chamamos a IA-TOON
+        const aiResult = await analyzeWithAI(orderedMessages, lead.toonContext);
+
+        if (aiResult) {
+            if (aiResult.statusChanged) {
+                finalStatus = aiResult.status;
+                statusWasChangedByAI = true;
+            }
+            newToonContext = aiResult.newToonContext;
+        }
+    }
+
+    // Regra de Ouro: Proteger o Pipeline contra ruido inicial
+    const totalMessagesHistoryCount = await prisma.message.count({ where: { leadId } });
+    if (totalMessagesHistoryCount <= 3 && finalStatus !== 'PERDIDO') {
+        finalStatus = 'NOVO';
+    }
+
+    // Lógica Circular para fechar e reabrir Leads
+    if ((lead.status === 'FECHADO' || lead.status === 'PERDIDO') && statusWasChangedByAI) {
+        if (finalStatus !== 'FECHADO' && finalStatus !== 'PERDIDO') {
+            // Ai detectou volta da conversa e interesse novamente
+            finalStatus = 'ATENDIMENTO';
+            await prisma.lead.update({
+                where: { id: lead.id },
+                data: { value: 0 } // zera valor
+            });
+        }
+    }
+
+    // Atualiza BD e ZERA contador de lote
+    await prisma.lead.update({
+        where: { id: lead.id },
+        data: {
             status: finalStatus,
-            contextSummary: summary
+            toonContext: newToonContext,
+            contextSummary: newToonContext ? newToonContext.substring(0, 100) + '...' : null, // Retro-compatibilidade do card principal
+            unprocessedMessages: 0
         }
     });
+
 }

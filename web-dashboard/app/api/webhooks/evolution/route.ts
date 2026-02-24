@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { PrismaClient } from '@/lib/generated/prisma';
-import { updateLeadStatus } from '@/lib/interpreter';
+import { queueAndProcessLeadMessage } from '@/lib/interpreter';
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -21,6 +21,7 @@ interface WebhookMessage {
   };
   remoteJid?: string;
   id?: string;
+  pushName?: string;
   messageTimestamp?: number | string;
   timestamp?: number | string;
   t?: number | string;
@@ -144,15 +145,30 @@ export async function POST(req: Request) {
           else receivedCount += 1;
 
           try {
+            const currentPushName = msg?.pushName || (msg as any)?.message?.pushName;
             await (tx as any).contact.create({
               data: {
                 instanceId: evolutionInstance.id,
                 jid: String(remoteJid),
+                pushName: currentPushName ? String(currentPushName) : undefined
               },
             });
             newContacts += 1;
           } catch (e) {
             if (!isUniqueViolation(e)) throw e;
+
+            const currentPushName = msg?.pushName || (msg as any)?.message?.pushName;
+            if (currentPushName) {
+              await (tx as any).contact.update({
+                where: {
+                  instanceId_jid: {
+                    instanceId: evolutionInstance.id,
+                    jid: String(remoteJid),
+                  },
+                },
+                data: { pushName: String(currentPushName) },
+              }).catch(() => { });
+            }
           }
 
           try {
@@ -175,10 +191,9 @@ export async function POST(req: Request) {
             "";
 
           if (messageContent) {
-            // Executamos de forma assíncrona fora da transação principal para não travar o webhook em caso de lentidão na IA
-            // Mas passamos as refs necessárias para garantir a atualização
-            updateLeadStatus(evolutionInstance.id, String(remoteJid), messageContent).catch(err =>
-              console.error('Erro ao processar Lead:', err)
+            // Enfileira a mensagem no Batch. O trigger avalia internamente a necessidade de chamar a IA
+            queueAndProcessLeadMessage(evolutionInstance.id, String(remoteJid), messageContent, fromMe).catch(err =>
+              console.error('Erro ao acionar enfileiramento do Lead:', err)
             );
           }
           // --- Fim da Evolução CRM ---
