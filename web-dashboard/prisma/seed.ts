@@ -26,20 +26,46 @@ async function main() {
     await prisma.evolutionInstance.deleteMany();
     await prisma.device.deleteMany();
 
-    // 1. Criar Empresa Headquarter
-    console.log('🏢 Criando Empresa...');
+    // 1. Criar Empresa Master (Lucas)
+    console.log('👑 Criando Empresa Master...');
+    const masterCompany = await prisma.company.create({
+        data: {
+            name: 'Antigravity Master',
+            cnpj: '00.000.000/0000-00',
+            plan: 'MASTER',
+            maxInstances: 999
+        }
+    });
+
+    const hashedPassword = await bcrypt.hash('senha123', 10);
+
+    // 1.1 Criar Usuário Master
+    console.log('🔑 Criando Usuário Super Admin (lucas@master.com / senha123)...');
+    await prisma.user.create({
+        data: {
+            companyId: masterCompany.id,
+            name: 'Lucas Master',
+            email: 'lucas@master.com',
+            password: hashedPassword,
+            role: 'SUPER_ADMIN'
+        }
+    });
+
+    // 2. Criar Empresa Cliente (Acme)
+    console.log('🏢 Criando Empresa Cliente...');
     const company = await prisma.company.create({
         data: {
             name: 'Acme Corp - Filial Brasil',
             cnpj: '00.000.000/0001-00',
             address: 'Av. Paulista, 1000 - São Paulo, SP',
-            billingEmail: 'financeiro@acme.com.br'
+            billingEmail: 'financeiro@acme.com.br',
+            plan: 'GOLD',
+            maxInstances: 10
         }
     });
 
-    // 2. Criar Usuário Admin Mocado
+    // 2.1 Criar Usuário Admin Mocado
     console.log('👤 Criando Usuário Admin (admin@demo.com / senha123)...');
-    const hashedPassword = await bcrypt.hash('senha123', 10);
     const adminUser = await prisma.user.create({
         data: {
             companyId: company.id,

@@ -4,15 +4,22 @@ import { prisma } from '@/lib/prisma';
 import { CRMData, LeadWithContact } from '@/lib/types';
 import { LeadStatus } from '@/lib/interpreter';
 import { revalidatePath } from 'next/cache';
+import { getCurrentUser } from '@/lib/auth-helpers';
 
 /**
- * Busca todos os dados necessários para o CRM
+ * Busca todos os dados necessários para o CRM (Filtrado por Empresa)
  */
 export async function getCRMData(): Promise<CRMData> {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('Não autorizado');
+
     const leads = await prisma.lead.findMany({
         where: {
             contact: {
-                isIgnored: false
+                isIgnored: false,
+                instance: {
+                    companyId: user.companyId
+                }
             }
         },
         include: {
@@ -34,6 +41,9 @@ export async function getCRMData(): Promise<CRMData> {
     }) as unknown as LeadWithContact[];
 
     const instances = await prisma.evolutionInstance.findMany({
+        where: {
+            companyId: user.companyId
+        },
         orderBy: { name: 'asc' }
     });
 
@@ -46,6 +56,19 @@ export async function getCRMData(): Promise<CRMData> {
  * Atualiza o status de um lead (usado pelo Kanban)
  */
 export async function updateLeadStatusAction(leadId: string, status: LeadStatus) {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('Não autorizado');
+
+    // Verifica se o lead pertence à empresa do usuário
+    const targetLead = await prisma.lead.findFirst({
+        where: {
+            id: leadId,
+            contact: { instance: { companyId: user.companyId } }
+        }
+    });
+
+    if (!targetLead) throw new Error('Lead não encontrado ou acesso negado');
+
     const lead = await prisma.lead.update({
         where: { id: leadId },
         data: {
@@ -76,6 +99,18 @@ export async function updateLeadStatusAction(leadId: string, status: LeadStatus)
  * Atualiza o valor monetário de um lead
  */
 export async function updateLeadValueAction(leadId: string, value: number) {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('Não autorizado');
+
+    const lead = await prisma.lead.findFirst({
+        where: {
+            id: leadId,
+            contact: { instance: { companyId: user.companyId } }
+        }
+    });
+
+    if (!lead) throw new Error('Acesso negado');
+
     await prisma.lead.update({
         where: { id: leadId },
         data: { value }
@@ -89,15 +124,24 @@ export async function updateLeadValueAction(leadId: string, value: number) {
  * Ignora um contato globalmente (por JID)
  */
 export async function toggleIgnoreContactAction(jid: string, isIgnored: boolean) {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('Não autorizado');
+
     await prisma.contact.updateMany({
-        where: { jid },
+        where: {
+            jid,
+            instance: { companyId: user.companyId }
+        },
         data: { isIgnored }
     });
 
     // Remove do CRM se estiver sendo ignorado
     if (isIgnored) {
         const contacts = await prisma.contact.findMany({
-            where: { jid }
+            where: {
+                jid,
+                instance: { companyId: user.companyId }
+            }
         });
 
         const contactIds = contacts.map(c => c.id);
@@ -117,6 +161,18 @@ export async function toggleIgnoreContactAction(jid: string, isIgnored: boolean)
  * Adiciona uma nota manual ao lead
  */
 export async function addNote(leadId: string, content: string) {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('Não autorizado');
+
+    const lead = await prisma.lead.findFirst({
+        where: {
+            id: leadId,
+            contact: { instance: { companyId: user.companyId } }
+        }
+    });
+
+    if (!lead) throw new Error('Acesso negado');
+
     if (!content.trim()) return { success: false };
 
     await prisma.note.create({
@@ -131,18 +187,29 @@ export async function addNote(leadId: string, content: string) {
 }
 
 /**
- * Busca métricas financeiras (Pipeline e Receita)
+ * Busca métricas financeiras (Pipeline e Receita) Filtrado por Empresa
  */
 export async function getFinancialMetrics() {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('Não autorizado');
+
     const pipeline = await prisma.lead.aggregate({
         where: {
             status: { in: ['NOVO', 'ATENDIMENTO'] },
-            contact: { isIgnored: false }
+            contact: {
+                isIgnored: false,
+                instance: { companyId: user.companyId }
+            }
         },
         _sum: { value: true }
     });
 
     const sales = await prisma.saleRecord.aggregate({
+        where: {
+            contact: {
+                instance: { companyId: user.companyId }
+            }
+        },
         _sum: { value: true }
     });
 
@@ -160,8 +227,18 @@ export async function updateLeadDetailsAction(leadId: string, data: {
     value?: number;
     contextSummary?: string;
 }) {
-    const prevLead = await prisma.lead.findUnique({ where: { id: leadId }, include: { contact: true } });
-    if (!prevLead) return { success: false, error: 'Lead não encontrado' };
+    const user = await getCurrentUser();
+    if (!user) throw new Error('Não autorizado');
+
+    const prevLead = await prisma.lead.findFirst({
+        where: {
+            id: leadId,
+            contact: { instance: { companyId: user.companyId } }
+        },
+        include: { contact: true }
+    });
+
+    if (!prevLead) return { success: false, error: 'Lead não encontrado ou acesso negado' };
 
     await prisma.lead.update({
         where: { id: leadId },
@@ -190,6 +267,18 @@ export async function updateLeadDetailsAction(leadId: string, data: {
  * Adiciona um anexo ao lead (ex: Orçamento em Base64 ou Link)
  */
 export async function uploadAttachmentAction(leadId: string, fileData: { fileName: string, fileUrl: string, fileType: string, fileSize: number }) {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('Não autorizado');
+
+    const lead = await prisma.lead.findFirst({
+        where: {
+            id: leadId,
+            contact: { instance: { companyId: user.companyId } }
+        }
+    });
+
+    if (!lead) throw new Error('Acesso negado');
+
     await prisma.attachment.create({
         data: {
             leadId,
@@ -208,9 +297,16 @@ export async function uploadAttachmentAction(leadId: string, fileData: { fileNam
  * Retorna os Insights de Gestão da Plataforma baseando-se no tempo de resposta
  */
 export async function getManagerInsights() {
-    // 1. Achar Tempo Médio de Resposta (SLA)
-    // Calculado encontrando a diferença entre a mensagem do cliente e a PRIMEIRA mensagem subsequente do vendedor
+    const user = await getCurrentUser();
+    if (!user) throw new Error('Não autorizado');
+
+    // 1. Achar Tempo Médio de Resposta (SLA) - Filtrado por Empresa
     const allLeadsWithMessages = await prisma.lead.findMany({
+        where: {
+            contact: {
+                instance: { companyId: user.companyId }
+            }
+        },
         include: {
             messages: {
                 orderBy: { createdAt: 'asc' }

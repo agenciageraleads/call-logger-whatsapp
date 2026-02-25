@@ -14,12 +14,16 @@ export function middleware(request: NextRequest) {
         return NextResponse.next();
     }
 
-    // Pega o cookie
+    // Pega os cookies
     const hasSession = request.cookies.has('admin_session');
+    const userRole = request.cookies.get('user_role')?.value;
 
-    // Se estiver tentando acessar o login, e já tiver sessão, joga pro dashboard
+    // Se estiver tentando acessar o login, e já tiver sessão, joga pro lugar certo
     if (pathname === '/login') {
         if (hasSession) {
+            if (userRole === 'SUPER_ADMIN') {
+                return NextResponse.redirect(new URL('/master', request.url));
+            }
             return NextResponse.redirect(new URL('/', request.url));
         }
         return NextResponse.next();
@@ -29,6 +33,16 @@ export function middleware(request: NextRequest) {
     if (!hasSession) {
         return NextResponse.redirect(new URL('/login', request.url));
     }
+
+    // Proteção da rota Master
+    if (pathname.startsWith('/master')) {
+        if (userRole !== 'SUPER_ADMIN') {
+            return NextResponse.redirect(new URL('/', request.url));
+        }
+    }
+
+    // Se for Super Admin tentando acessar a home comum, talvez queira ir pro master, 
+    // mas deixamos livre para transitar se necessário. 
 
     return NextResponse.next();
 }

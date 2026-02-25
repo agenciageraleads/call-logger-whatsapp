@@ -2141,11 +2141,13 @@ export namespace Prisma {
   export type CompanyCountOutputType = {
     users: number
     instances: number
+    devices: number
   }
 
   export type CompanyCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     users?: boolean | CompanyCountOutputTypeCountUsersArgs
     instances?: boolean | CompanyCountOutputTypeCountInstancesArgs
+    devices?: boolean | CompanyCountOutputTypeCountDevicesArgs
   }
 
   // Custom InputTypes
@@ -2173,6 +2175,13 @@ export namespace Prisma {
     where?: EvolutionInstanceWhereInput
   }
 
+  /**
+   * CompanyCountOutputType without action
+   */
+  export type CompanyCountOutputTypeCountDevicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: DeviceWhereInput
+  }
+
 
   /**
    * Models
@@ -2190,6 +2199,7 @@ export namespace Prisma {
 
   export type DeviceMinAggregateOutputType = {
     id: string | null
+    companyId: string | null
     name: string | null
     lastSeen: Date | null
     createdAt: Date | null
@@ -2198,6 +2208,7 @@ export namespace Prisma {
 
   export type DeviceMaxAggregateOutputType = {
     id: string | null
+    companyId: string | null
     name: string | null
     lastSeen: Date | null
     createdAt: Date | null
@@ -2206,6 +2217,7 @@ export namespace Prisma {
 
   export type DeviceCountAggregateOutputType = {
     id: number
+    companyId: number
     name: number
     lastSeen: number
     createdAt: number
@@ -2216,6 +2228,7 @@ export namespace Prisma {
 
   export type DeviceMinAggregateInputType = {
     id?: true
+    companyId?: true
     name?: true
     lastSeen?: true
     createdAt?: true
@@ -2224,6 +2237,7 @@ export namespace Prisma {
 
   export type DeviceMaxAggregateInputType = {
     id?: true
+    companyId?: true
     name?: true
     lastSeen?: true
     createdAt?: true
@@ -2232,6 +2246,7 @@ export namespace Prisma {
 
   export type DeviceCountAggregateInputType = {
     id?: true
+    companyId?: true
     name?: true
     lastSeen?: true
     createdAt?: true
@@ -2313,6 +2328,7 @@ export namespace Prisma {
 
   export type DeviceGroupByOutputType = {
     id: string
+    companyId: string | null
     name: string | null
     lastSeen: Date | null
     createdAt: Date
@@ -2338,25 +2354,30 @@ export namespace Prisma {
 
   export type DeviceSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    companyId?: boolean
     name?: boolean
     lastSeen?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     calls?: boolean | Device$callsArgs<ExtArgs>
     evolutionInstance?: boolean | Device$evolutionInstanceArgs<ExtArgs>
+    company?: boolean | Device$companyArgs<ExtArgs>
     _count?: boolean | DeviceCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["device"]>
 
   export type DeviceSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    companyId?: boolean
     name?: boolean
     lastSeen?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    company?: boolean | Device$companyArgs<ExtArgs>
   }, ExtArgs["result"]["device"]>
 
   export type DeviceSelectScalar = {
     id?: boolean
+    companyId?: boolean
     name?: boolean
     lastSeen?: boolean
     createdAt?: boolean
@@ -2366,18 +2387,23 @@ export namespace Prisma {
   export type DeviceInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     calls?: boolean | Device$callsArgs<ExtArgs>
     evolutionInstance?: boolean | Device$evolutionInstanceArgs<ExtArgs>
+    company?: boolean | Device$companyArgs<ExtArgs>
     _count?: boolean | DeviceCountOutputTypeDefaultArgs<ExtArgs>
   }
-  export type DeviceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type DeviceIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    company?: boolean | Device$companyArgs<ExtArgs>
+  }
 
   export type $DevicePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Device"
     objects: {
       calls: Prisma.$CallLogPayload<ExtArgs>[]
       evolutionInstance: Prisma.$EvolutionInstancePayload<ExtArgs> | null
+      company: Prisma.$CompanyPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
+      companyId: string | null
       name: string | null
       lastSeen: Date | null
       createdAt: Date
@@ -2748,6 +2774,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     calls<T extends Device$callsArgs<ExtArgs> = {}>(args?: Subset<T, Device$callsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$CallLogPayload<ExtArgs>, T, "findMany"> | Null>
     evolutionInstance<T extends Device$evolutionInstanceArgs<ExtArgs> = {}>(args?: Subset<T, Device$evolutionInstanceArgs<ExtArgs>>): Prisma__EvolutionInstanceClient<$Result.GetResult<Prisma.$EvolutionInstancePayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
+    company<T extends Device$companyArgs<ExtArgs> = {}>(args?: Subset<T, Device$companyArgs<ExtArgs>>): Prisma__CompanyClient<$Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow"> | null, null, ExtArgs>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2778,6 +2805,7 @@ export namespace Prisma {
    */ 
   interface DeviceFieldRefs {
     readonly id: FieldRef<"Device", 'String'>
+    readonly companyId: FieldRef<"Device", 'String'>
     readonly name: FieldRef<"Device", 'String'>
     readonly lastSeen: FieldRef<"Device", 'DateTime'>
     readonly createdAt: FieldRef<"Device", 'DateTime'>
@@ -3001,6 +3029,10 @@ export namespace Prisma {
      * The data used to create many Devices.
      */
     data: DeviceCreateManyInput | DeviceCreateManyInput[]
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceIncludeCreateManyAndReturn<ExtArgs> | null
   }
 
   /**
@@ -3126,6 +3158,21 @@ export namespace Prisma {
      */
     include?: EvolutionInstanceInclude<ExtArgs> | null
     where?: EvolutionInstanceWhereInput
+  }
+
+  /**
+   * Device.company
+   */
+  export type Device$companyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Company
+     */
+    select?: CompanySelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: CompanyInclude<ExtArgs> | null
+    where?: CompanyWhereInput
   }
 
   /**
@@ -14229,8 +14276,18 @@ export namespace Prisma {
 
   export type AggregateCompany = {
     _count: CompanyCountAggregateOutputType | null
+    _avg: CompanyAvgAggregateOutputType | null
+    _sum: CompanySumAggregateOutputType | null
     _min: CompanyMinAggregateOutputType | null
     _max: CompanyMaxAggregateOutputType | null
+  }
+
+  export type CompanyAvgAggregateOutputType = {
+    maxInstances: number | null
+  }
+
+  export type CompanySumAggregateOutputType = {
+    maxInstances: number | null
   }
 
   export type CompanyMinAggregateOutputType = {
@@ -14239,6 +14296,9 @@ export namespace Prisma {
     cnpj: string | null
     address: string | null
     billingEmail: string | null
+    plan: string | null
+    maxInstances: number | null
+    expiresAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -14249,6 +14309,9 @@ export namespace Prisma {
     cnpj: string | null
     address: string | null
     billingEmail: string | null
+    plan: string | null
+    maxInstances: number | null
+    expiresAt: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -14259,11 +14322,22 @@ export namespace Prisma {
     cnpj: number
     address: number
     billingEmail: number
+    plan: number
+    maxInstances: number
+    expiresAt: number
     createdAt: number
     updatedAt: number
     _all: number
   }
 
+
+  export type CompanyAvgAggregateInputType = {
+    maxInstances?: true
+  }
+
+  export type CompanySumAggregateInputType = {
+    maxInstances?: true
+  }
 
   export type CompanyMinAggregateInputType = {
     id?: true
@@ -14271,6 +14345,9 @@ export namespace Prisma {
     cnpj?: true
     address?: true
     billingEmail?: true
+    plan?: true
+    maxInstances?: true
+    expiresAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -14281,6 +14358,9 @@ export namespace Prisma {
     cnpj?: true
     address?: true
     billingEmail?: true
+    plan?: true
+    maxInstances?: true
+    expiresAt?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -14291,6 +14371,9 @@ export namespace Prisma {
     cnpj?: true
     address?: true
     billingEmail?: true
+    plan?: true
+    maxInstances?: true
+    expiresAt?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -14334,6 +14417,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: CompanyAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: CompanySumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: CompanyMinAggregateInputType
@@ -14364,6 +14459,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: CompanyCountAggregateInputType | true
+    _avg?: CompanyAvgAggregateInputType
+    _sum?: CompanySumAggregateInputType
     _min?: CompanyMinAggregateInputType
     _max?: CompanyMaxAggregateInputType
   }
@@ -14374,9 +14471,14 @@ export namespace Prisma {
     cnpj: string | null
     address: string | null
     billingEmail: string | null
+    plan: string
+    maxInstances: number
+    expiresAt: Date | null
     createdAt: Date
     updatedAt: Date
     _count: CompanyCountAggregateOutputType | null
+    _avg: CompanyAvgAggregateOutputType | null
+    _sum: CompanySumAggregateOutputType | null
     _min: CompanyMinAggregateOutputType | null
     _max: CompanyMaxAggregateOutputType | null
   }
@@ -14401,10 +14503,14 @@ export namespace Prisma {
     cnpj?: boolean
     address?: boolean
     billingEmail?: boolean
+    plan?: boolean
+    maxInstances?: boolean
+    expiresAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     users?: boolean | Company$usersArgs<ExtArgs>
     instances?: boolean | Company$instancesArgs<ExtArgs>
+    devices?: boolean | Company$devicesArgs<ExtArgs>
     _count?: boolean | CompanyCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["company"]>
 
@@ -14414,6 +14520,9 @@ export namespace Prisma {
     cnpj?: boolean
     address?: boolean
     billingEmail?: boolean
+    plan?: boolean
+    maxInstances?: boolean
+    expiresAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["company"]>
@@ -14424,6 +14533,9 @@ export namespace Prisma {
     cnpj?: boolean
     address?: boolean
     billingEmail?: boolean
+    plan?: boolean
+    maxInstances?: boolean
+    expiresAt?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
@@ -14431,6 +14543,7 @@ export namespace Prisma {
   export type CompanyInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     users?: boolean | Company$usersArgs<ExtArgs>
     instances?: boolean | Company$instancesArgs<ExtArgs>
+    devices?: boolean | Company$devicesArgs<ExtArgs>
     _count?: boolean | CompanyCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type CompanyIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
@@ -14440,6 +14553,7 @@ export namespace Prisma {
     objects: {
       users: Prisma.$UserPayload<ExtArgs>[]
       instances: Prisma.$EvolutionInstancePayload<ExtArgs>[]
+      devices: Prisma.$DevicePayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -14447,6 +14561,9 @@ export namespace Prisma {
       cnpj: string | null
       address: string | null
       billingEmail: string | null
+      plan: string
+      maxInstances: number
+      expiresAt: Date | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["company"]>
@@ -14815,6 +14932,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     users<T extends Company$usersArgs<ExtArgs> = {}>(args?: Subset<T, Company$usersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany"> | Null>
     instances<T extends Company$instancesArgs<ExtArgs> = {}>(args?: Subset<T, Company$instancesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$EvolutionInstancePayload<ExtArgs>, T, "findMany"> | Null>
+    devices<T extends Company$devicesArgs<ExtArgs> = {}>(args?: Subset<T, Company$devicesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DevicePayload<ExtArgs>, T, "findMany"> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -14849,6 +14967,9 @@ export namespace Prisma {
     readonly cnpj: FieldRef<"Company", 'String'>
     readonly address: FieldRef<"Company", 'String'>
     readonly billingEmail: FieldRef<"Company", 'String'>
+    readonly plan: FieldRef<"Company", 'String'>
+    readonly maxInstances: FieldRef<"Company", 'Int'>
+    readonly expiresAt: FieldRef<"Company", 'DateTime'>
     readonly createdAt: FieldRef<"Company", 'DateTime'>
     readonly updatedAt: FieldRef<"Company", 'DateTime'>
   }
@@ -15200,6 +15321,26 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: EvolutionInstanceScalarFieldEnum | EvolutionInstanceScalarFieldEnum[]
+  }
+
+  /**
+   * Company.devices
+   */
+  export type Company$devicesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Device
+     */
+    select?: DeviceSelect<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: DeviceInclude<ExtArgs> | null
+    where?: DeviceWhereInput
+    orderBy?: DeviceOrderByWithRelationInput | DeviceOrderByWithRelationInput[]
+    cursor?: DeviceWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: DeviceScalarFieldEnum | DeviceScalarFieldEnum[]
   }
 
   /**
@@ -16197,6 +16338,7 @@ export namespace Prisma {
 
   export const DeviceScalarFieldEnum: {
     id: 'id',
+    companyId: 'companyId',
     name: 'name',
     lastSeen: 'lastSeen',
     createdAt: 'createdAt',
@@ -16360,6 +16502,9 @@ export namespace Prisma {
     cnpj: 'cnpj',
     address: 'address',
     billingEmail: 'billingEmail',
+    plan: 'plan',
+    maxInstances: 'maxInstances',
+    expiresAt: 'expiresAt',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -16445,22 +16590,26 @@ export namespace Prisma {
     OR?: DeviceWhereInput[]
     NOT?: DeviceWhereInput | DeviceWhereInput[]
     id?: StringFilter<"Device"> | string
+    companyId?: StringNullableFilter<"Device"> | string | null
     name?: StringNullableFilter<"Device"> | string | null
     lastSeen?: DateTimeNullableFilter<"Device"> | Date | string | null
     createdAt?: DateTimeFilter<"Device"> | Date | string
     updatedAt?: DateTimeFilter<"Device"> | Date | string
     calls?: CallLogListRelationFilter
     evolutionInstance?: XOR<EvolutionInstanceNullableRelationFilter, EvolutionInstanceWhereInput> | null
+    company?: XOR<CompanyNullableRelationFilter, CompanyWhereInput> | null
   }
 
   export type DeviceOrderByWithRelationInput = {
     id?: SortOrder
+    companyId?: SortOrderInput | SortOrder
     name?: SortOrderInput | SortOrder
     lastSeen?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     calls?: CallLogOrderByRelationAggregateInput
     evolutionInstance?: EvolutionInstanceOrderByWithRelationInput
+    company?: CompanyOrderByWithRelationInput
   }
 
   export type DeviceWhereUniqueInput = Prisma.AtLeast<{
@@ -16468,16 +16617,19 @@ export namespace Prisma {
     AND?: DeviceWhereInput | DeviceWhereInput[]
     OR?: DeviceWhereInput[]
     NOT?: DeviceWhereInput | DeviceWhereInput[]
+    companyId?: StringNullableFilter<"Device"> | string | null
     name?: StringNullableFilter<"Device"> | string | null
     lastSeen?: DateTimeNullableFilter<"Device"> | Date | string | null
     createdAt?: DateTimeFilter<"Device"> | Date | string
     updatedAt?: DateTimeFilter<"Device"> | Date | string
     calls?: CallLogListRelationFilter
     evolutionInstance?: XOR<EvolutionInstanceNullableRelationFilter, EvolutionInstanceWhereInput> | null
+    company?: XOR<CompanyNullableRelationFilter, CompanyWhereInput> | null
   }, "id">
 
   export type DeviceOrderByWithAggregationInput = {
     id?: SortOrder
+    companyId?: SortOrderInput | SortOrder
     name?: SortOrderInput | SortOrder
     lastSeen?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -16492,6 +16644,7 @@ export namespace Prisma {
     OR?: DeviceScalarWhereWithAggregatesInput[]
     NOT?: DeviceScalarWhereWithAggregatesInput | DeviceScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Device"> | string
+    companyId?: StringNullableWithAggregatesFilter<"Device"> | string | null
     name?: StringNullableWithAggregatesFilter<"Device"> | string | null
     lastSeen?: DateTimeNullableWithAggregatesFilter<"Device"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Device"> | Date | string
@@ -17297,10 +17450,14 @@ export namespace Prisma {
     cnpj?: StringNullableFilter<"Company"> | string | null
     address?: StringNullableFilter<"Company"> | string | null
     billingEmail?: StringNullableFilter<"Company"> | string | null
+    plan?: StringFilter<"Company"> | string
+    maxInstances?: IntFilter<"Company"> | number
+    expiresAt?: DateTimeNullableFilter<"Company"> | Date | string | null
     createdAt?: DateTimeFilter<"Company"> | Date | string
     updatedAt?: DateTimeFilter<"Company"> | Date | string
     users?: UserListRelationFilter
     instances?: EvolutionInstanceListRelationFilter
+    devices?: DeviceListRelationFilter
   }
 
   export type CompanyOrderByWithRelationInput = {
@@ -17309,10 +17466,14 @@ export namespace Prisma {
     cnpj?: SortOrderInput | SortOrder
     address?: SortOrderInput | SortOrder
     billingEmail?: SortOrderInput | SortOrder
+    plan?: SortOrder
+    maxInstances?: SortOrder
+    expiresAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     users?: UserOrderByRelationAggregateInput
     instances?: EvolutionInstanceOrderByRelationAggregateInput
+    devices?: DeviceOrderByRelationAggregateInput
   }
 
   export type CompanyWhereUniqueInput = Prisma.AtLeast<{
@@ -17324,10 +17485,14 @@ export namespace Prisma {
     cnpj?: StringNullableFilter<"Company"> | string | null
     address?: StringNullableFilter<"Company"> | string | null
     billingEmail?: StringNullableFilter<"Company"> | string | null
+    plan?: StringFilter<"Company"> | string
+    maxInstances?: IntFilter<"Company"> | number
+    expiresAt?: DateTimeNullableFilter<"Company"> | Date | string | null
     createdAt?: DateTimeFilter<"Company"> | Date | string
     updatedAt?: DateTimeFilter<"Company"> | Date | string
     users?: UserListRelationFilter
     instances?: EvolutionInstanceListRelationFilter
+    devices?: DeviceListRelationFilter
   }, "id">
 
   export type CompanyOrderByWithAggregationInput = {
@@ -17336,11 +17501,16 @@ export namespace Prisma {
     cnpj?: SortOrderInput | SortOrder
     address?: SortOrderInput | SortOrder
     billingEmail?: SortOrderInput | SortOrder
+    plan?: SortOrder
+    maxInstances?: SortOrder
+    expiresAt?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: CompanyCountOrderByAggregateInput
+    _avg?: CompanyAvgOrderByAggregateInput
     _max?: CompanyMaxOrderByAggregateInput
     _min?: CompanyMinOrderByAggregateInput
+    _sum?: CompanySumOrderByAggregateInput
   }
 
   export type CompanyScalarWhereWithAggregatesInput = {
@@ -17352,6 +17522,9 @@ export namespace Prisma {
     cnpj?: StringNullableWithAggregatesFilter<"Company"> | string | null
     address?: StringNullableWithAggregatesFilter<"Company"> | string | null
     billingEmail?: StringNullableWithAggregatesFilter<"Company"> | string | null
+    plan?: StringWithAggregatesFilter<"Company"> | string
+    maxInstances?: IntWithAggregatesFilter<"Company"> | number
+    expiresAt?: DateTimeNullableWithAggregatesFilter<"Company"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Company"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Company"> | Date | string
   }
@@ -17434,10 +17607,12 @@ export namespace Prisma {
     updatedAt?: Date | string
     calls?: CallLogCreateNestedManyWithoutDeviceInput
     evolutionInstance?: EvolutionInstanceCreateNestedOneWithoutDeviceInput
+    company?: CompanyCreateNestedOneWithoutDevicesInput
   }
 
   export type DeviceUncheckedCreateInput = {
     id: string
+    companyId?: string | null
     name?: string | null
     lastSeen?: Date | string | null
     createdAt?: Date | string
@@ -17454,10 +17629,12 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     calls?: CallLogUpdateManyWithoutDeviceNestedInput
     evolutionInstance?: EvolutionInstanceUpdateOneWithoutDeviceNestedInput
+    company?: CompanyUpdateOneWithoutDevicesNestedInput
   }
 
   export type DeviceUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    companyId?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     lastSeen?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -17468,6 +17645,7 @@ export namespace Prisma {
 
   export type DeviceCreateManyInput = {
     id: string
+    companyId?: string | null
     name?: string | null
     lastSeen?: Date | string | null
     createdAt?: Date | string
@@ -17484,6 +17662,7 @@ export namespace Prisma {
 
   export type DeviceUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
+    companyId?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     lastSeen?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -18328,10 +18507,14 @@ export namespace Prisma {
     cnpj?: string | null
     address?: string | null
     billingEmail?: string | null
+    plan?: string
+    maxInstances?: number
+    expiresAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutCompanyInput
     instances?: EvolutionInstanceCreateNestedManyWithoutCompanyInput
+    devices?: DeviceCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateInput = {
@@ -18340,10 +18523,14 @@ export namespace Prisma {
     cnpj?: string | null
     address?: string | null
     billingEmail?: string | null
+    plan?: string
+    maxInstances?: number
+    expiresAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
     instances?: EvolutionInstanceUncheckedCreateNestedManyWithoutCompanyInput
+    devices?: DeviceUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUpdateInput = {
@@ -18352,10 +18539,14 @@ export namespace Prisma {
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     billingEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    plan?: StringFieldUpdateOperationsInput | string
+    maxInstances?: IntFieldUpdateOperationsInput | number
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutCompanyNestedInput
     instances?: EvolutionInstanceUpdateManyWithoutCompanyNestedInput
+    devices?: DeviceUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateInput = {
@@ -18364,10 +18555,14 @@ export namespace Prisma {
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     billingEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    plan?: StringFieldUpdateOperationsInput | string
+    maxInstances?: IntFieldUpdateOperationsInput | number
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
     instances?: EvolutionInstanceUncheckedUpdateManyWithoutCompanyNestedInput
+    devices?: DeviceUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyCreateManyInput = {
@@ -18376,6 +18571,9 @@ export namespace Prisma {
     cnpj?: string | null
     address?: string | null
     billingEmail?: string | null
+    plan?: string
+    maxInstances?: number
+    expiresAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -18386,6 +18584,9 @@ export namespace Prisma {
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     billingEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    plan?: StringFieldUpdateOperationsInput | string
+    maxInstances?: IntFieldUpdateOperationsInput | number
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -18396,6 +18597,9 @@ export namespace Prisma {
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     billingEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    plan?: StringFieldUpdateOperationsInput | string
+    maxInstances?: IntFieldUpdateOperationsInput | number
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -18537,6 +18741,11 @@ export namespace Prisma {
     isNot?: EvolutionInstanceWhereInput | null
   }
 
+  export type CompanyNullableRelationFilter = {
+    is?: CompanyWhereInput | null
+    isNot?: CompanyWhereInput | null
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -18548,6 +18757,7 @@ export namespace Prisma {
 
   export type DeviceCountOrderByAggregateInput = {
     id?: SortOrder
+    companyId?: SortOrder
     name?: SortOrder
     lastSeen?: SortOrder
     createdAt?: SortOrder
@@ -18556,6 +18766,7 @@ export namespace Prisma {
 
   export type DeviceMaxOrderByAggregateInput = {
     id?: SortOrder
+    companyId?: SortOrder
     name?: SortOrder
     lastSeen?: SortOrder
     createdAt?: SortOrder
@@ -18564,6 +18775,7 @@ export namespace Prisma {
 
   export type DeviceMinOrderByAggregateInput = {
     id?: SortOrder
+    companyId?: SortOrder
     name?: SortOrder
     lastSeen?: SortOrder
     createdAt?: SortOrder
@@ -18721,11 +18933,6 @@ export namespace Prisma {
     every?: DailyMetricWhereInput
     some?: DailyMetricWhereInput
     none?: DailyMetricWhereInput
-  }
-
-  export type CompanyNullableRelationFilter = {
-    is?: CompanyWhereInput | null
-    isNot?: CompanyWhereInput | null
   }
 
   export type DeviceNullableRelationFilter = {
@@ -19280,11 +19487,21 @@ export namespace Prisma {
     none?: EvolutionInstanceWhereInput
   }
 
+  export type DeviceListRelationFilter = {
+    every?: DeviceWhereInput
+    some?: DeviceWhereInput
+    none?: DeviceWhereInput
+  }
+
   export type UserOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
   export type EvolutionInstanceOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type DeviceOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -19294,8 +19511,15 @@ export namespace Prisma {
     cnpj?: SortOrder
     address?: SortOrder
     billingEmail?: SortOrder
+    plan?: SortOrder
+    maxInstances?: SortOrder
+    expiresAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type CompanyAvgOrderByAggregateInput = {
+    maxInstances?: SortOrder
   }
 
   export type CompanyMaxOrderByAggregateInput = {
@@ -19304,6 +19528,9 @@ export namespace Prisma {
     cnpj?: SortOrder
     address?: SortOrder
     billingEmail?: SortOrder
+    plan?: SortOrder
+    maxInstances?: SortOrder
+    expiresAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -19314,8 +19541,15 @@ export namespace Prisma {
     cnpj?: SortOrder
     address?: SortOrder
     billingEmail?: SortOrder
+    plan?: SortOrder
+    maxInstances?: SortOrder
+    expiresAt?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type CompanySumOrderByAggregateInput = {
+    maxInstances?: SortOrder
   }
 
   export type CompanyRelationFilter = {
@@ -19369,6 +19603,12 @@ export namespace Prisma {
     connect?: EvolutionInstanceWhereUniqueInput
   }
 
+  export type CompanyCreateNestedOneWithoutDevicesInput = {
+    create?: XOR<CompanyCreateWithoutDevicesInput, CompanyUncheckedCreateWithoutDevicesInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutDevicesInput
+    connect?: CompanyWhereUniqueInput
+  }
+
   export type CallLogUncheckedCreateNestedManyWithoutDeviceInput = {
     create?: XOR<CallLogCreateWithoutDeviceInput, CallLogUncheckedCreateWithoutDeviceInput> | CallLogCreateWithoutDeviceInput[] | CallLogUncheckedCreateWithoutDeviceInput[]
     connectOrCreate?: CallLogCreateOrConnectWithoutDeviceInput | CallLogCreateOrConnectWithoutDeviceInput[]
@@ -19420,6 +19660,16 @@ export namespace Prisma {
     delete?: EvolutionInstanceWhereInput | boolean
     connect?: EvolutionInstanceWhereUniqueInput
     update?: XOR<XOR<EvolutionInstanceUpdateToOneWithWhereWithoutDeviceInput, EvolutionInstanceUpdateWithoutDeviceInput>, EvolutionInstanceUncheckedUpdateWithoutDeviceInput>
+  }
+
+  export type CompanyUpdateOneWithoutDevicesNestedInput = {
+    create?: XOR<CompanyCreateWithoutDevicesInput, CompanyUncheckedCreateWithoutDevicesInput>
+    connectOrCreate?: CompanyCreateOrConnectWithoutDevicesInput
+    upsert?: CompanyUpsertWithoutDevicesInput
+    disconnect?: CompanyWhereInput | boolean
+    delete?: CompanyWhereInput | boolean
+    connect?: CompanyWhereUniqueInput
+    update?: XOR<XOR<CompanyUpdateToOneWithWhereWithoutDevicesInput, CompanyUpdateWithoutDevicesInput>, CompanyUncheckedUpdateWithoutDevicesInput>
   }
 
   export type CallLogUncheckedUpdateManyWithoutDeviceNestedInput = {
@@ -20088,6 +20338,13 @@ export namespace Prisma {
     connect?: EvolutionInstanceWhereUniqueInput | EvolutionInstanceWhereUniqueInput[]
   }
 
+  export type DeviceCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<DeviceCreateWithoutCompanyInput, DeviceUncheckedCreateWithoutCompanyInput> | DeviceCreateWithoutCompanyInput[] | DeviceUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: DeviceCreateOrConnectWithoutCompanyInput | DeviceCreateOrConnectWithoutCompanyInput[]
+    createMany?: DeviceCreateManyCompanyInputEnvelope
+    connect?: DeviceWhereUniqueInput | DeviceWhereUniqueInput[]
+  }
+
   export type UserUncheckedCreateNestedManyWithoutCompanyInput = {
     create?: XOR<UserCreateWithoutCompanyInput, UserUncheckedCreateWithoutCompanyInput> | UserCreateWithoutCompanyInput[] | UserUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: UserCreateOrConnectWithoutCompanyInput | UserCreateOrConnectWithoutCompanyInput[]
@@ -20100,6 +20357,13 @@ export namespace Prisma {
     connectOrCreate?: EvolutionInstanceCreateOrConnectWithoutCompanyInput | EvolutionInstanceCreateOrConnectWithoutCompanyInput[]
     createMany?: EvolutionInstanceCreateManyCompanyInputEnvelope
     connect?: EvolutionInstanceWhereUniqueInput | EvolutionInstanceWhereUniqueInput[]
+  }
+
+  export type DeviceUncheckedCreateNestedManyWithoutCompanyInput = {
+    create?: XOR<DeviceCreateWithoutCompanyInput, DeviceUncheckedCreateWithoutCompanyInput> | DeviceCreateWithoutCompanyInput[] | DeviceUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: DeviceCreateOrConnectWithoutCompanyInput | DeviceCreateOrConnectWithoutCompanyInput[]
+    createMany?: DeviceCreateManyCompanyInputEnvelope
+    connect?: DeviceWhereUniqueInput | DeviceWhereUniqueInput[]
   }
 
   export type UserUpdateManyWithoutCompanyNestedInput = {
@@ -20130,6 +20394,20 @@ export namespace Prisma {
     deleteMany?: EvolutionInstanceScalarWhereInput | EvolutionInstanceScalarWhereInput[]
   }
 
+  export type DeviceUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<DeviceCreateWithoutCompanyInput, DeviceUncheckedCreateWithoutCompanyInput> | DeviceCreateWithoutCompanyInput[] | DeviceUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: DeviceCreateOrConnectWithoutCompanyInput | DeviceCreateOrConnectWithoutCompanyInput[]
+    upsert?: DeviceUpsertWithWhereUniqueWithoutCompanyInput | DeviceUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: DeviceCreateManyCompanyInputEnvelope
+    set?: DeviceWhereUniqueInput | DeviceWhereUniqueInput[]
+    disconnect?: DeviceWhereUniqueInput | DeviceWhereUniqueInput[]
+    delete?: DeviceWhereUniqueInput | DeviceWhereUniqueInput[]
+    connect?: DeviceWhereUniqueInput | DeviceWhereUniqueInput[]
+    update?: DeviceUpdateWithWhereUniqueWithoutCompanyInput | DeviceUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: DeviceUpdateManyWithWhereWithoutCompanyInput | DeviceUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: DeviceScalarWhereInput | DeviceScalarWhereInput[]
+  }
+
   export type UserUncheckedUpdateManyWithoutCompanyNestedInput = {
     create?: XOR<UserCreateWithoutCompanyInput, UserUncheckedCreateWithoutCompanyInput> | UserCreateWithoutCompanyInput[] | UserUncheckedCreateWithoutCompanyInput[]
     connectOrCreate?: UserCreateOrConnectWithoutCompanyInput | UserCreateOrConnectWithoutCompanyInput[]
@@ -20156,6 +20434,20 @@ export namespace Prisma {
     update?: EvolutionInstanceUpdateWithWhereUniqueWithoutCompanyInput | EvolutionInstanceUpdateWithWhereUniqueWithoutCompanyInput[]
     updateMany?: EvolutionInstanceUpdateManyWithWhereWithoutCompanyInput | EvolutionInstanceUpdateManyWithWhereWithoutCompanyInput[]
     deleteMany?: EvolutionInstanceScalarWhereInput | EvolutionInstanceScalarWhereInput[]
+  }
+
+  export type DeviceUncheckedUpdateManyWithoutCompanyNestedInput = {
+    create?: XOR<DeviceCreateWithoutCompanyInput, DeviceUncheckedCreateWithoutCompanyInput> | DeviceCreateWithoutCompanyInput[] | DeviceUncheckedCreateWithoutCompanyInput[]
+    connectOrCreate?: DeviceCreateOrConnectWithoutCompanyInput | DeviceCreateOrConnectWithoutCompanyInput[]
+    upsert?: DeviceUpsertWithWhereUniqueWithoutCompanyInput | DeviceUpsertWithWhereUniqueWithoutCompanyInput[]
+    createMany?: DeviceCreateManyCompanyInputEnvelope
+    set?: DeviceWhereUniqueInput | DeviceWhereUniqueInput[]
+    disconnect?: DeviceWhereUniqueInput | DeviceWhereUniqueInput[]
+    delete?: DeviceWhereUniqueInput | DeviceWhereUniqueInput[]
+    connect?: DeviceWhereUniqueInput | DeviceWhereUniqueInput[]
+    update?: DeviceUpdateWithWhereUniqueWithoutCompanyInput | DeviceUpdateWithWhereUniqueWithoutCompanyInput[]
+    updateMany?: DeviceUpdateManyWithWhereWithoutCompanyInput | DeviceUpdateManyWithWhereWithoutCompanyInput[]
+    deleteMany?: DeviceScalarWhereInput | DeviceScalarWhereInput[]
   }
 
   export type CompanyCreateNestedOneWithoutUsersInput = {
@@ -20457,6 +20749,41 @@ export namespace Prisma {
     create: XOR<EvolutionInstanceCreateWithoutDeviceInput, EvolutionInstanceUncheckedCreateWithoutDeviceInput>
   }
 
+  export type CompanyCreateWithoutDevicesInput = {
+    id?: string
+    name: string
+    cnpj?: string | null
+    address?: string | null
+    billingEmail?: string | null
+    plan?: string
+    maxInstances?: number
+    expiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserCreateNestedManyWithoutCompanyInput
+    instances?: EvolutionInstanceCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyUncheckedCreateWithoutDevicesInput = {
+    id?: string
+    name: string
+    cnpj?: string | null
+    address?: string | null
+    billingEmail?: string | null
+    plan?: string
+    maxInstances?: number
+    expiresAt?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    users?: UserUncheckedCreateNestedManyWithoutCompanyInput
+    instances?: EvolutionInstanceUncheckedCreateNestedManyWithoutCompanyInput
+  }
+
+  export type CompanyCreateOrConnectWithoutDevicesInput = {
+    where: CompanyWhereUniqueInput
+    create: XOR<CompanyCreateWithoutDevicesInput, CompanyUncheckedCreateWithoutDevicesInput>
+  }
+
   export type CallLogUpsertWithWhereUniqueWithoutDeviceInput = {
     where: CallLogWhereUniqueInput
     update: XOR<CallLogUpdateWithoutDeviceInput, CallLogUncheckedUpdateWithoutDeviceInput>
@@ -20532,6 +20859,47 @@ export namespace Prisma {
     processedMessages?: ProcessedMessageUncheckedUpdateManyWithoutInstanceNestedInput
   }
 
+  export type CompanyUpsertWithoutDevicesInput = {
+    update: XOR<CompanyUpdateWithoutDevicesInput, CompanyUncheckedUpdateWithoutDevicesInput>
+    create: XOR<CompanyCreateWithoutDevicesInput, CompanyUncheckedCreateWithoutDevicesInput>
+    where?: CompanyWhereInput
+  }
+
+  export type CompanyUpdateToOneWithWhereWithoutDevicesInput = {
+    where?: CompanyWhereInput
+    data: XOR<CompanyUpdateWithoutDevicesInput, CompanyUncheckedUpdateWithoutDevicesInput>
+  }
+
+  export type CompanyUpdateWithoutDevicesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    billingEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    plan?: StringFieldUpdateOperationsInput | string
+    maxInstances?: IntFieldUpdateOperationsInput | number
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUpdateManyWithoutCompanyNestedInput
+    instances?: EvolutionInstanceUpdateManyWithoutCompanyNestedInput
+  }
+
+  export type CompanyUncheckedUpdateWithoutDevicesInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    cnpj?: NullableStringFieldUpdateOperationsInput | string | null
+    address?: NullableStringFieldUpdateOperationsInput | string | null
+    billingEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    plan?: StringFieldUpdateOperationsInput | string
+    maxInstances?: IntFieldUpdateOperationsInput | number
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
+    instances?: EvolutionInstanceUncheckedUpdateManyWithoutCompanyNestedInput
+  }
+
   export type DeviceCreateWithoutCallsInput = {
     id: string
     name?: string | null
@@ -20539,10 +20907,12 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     evolutionInstance?: EvolutionInstanceCreateNestedOneWithoutDeviceInput
+    company?: CompanyCreateNestedOneWithoutDevicesInput
   }
 
   export type DeviceUncheckedCreateWithoutCallsInput = {
     id: string
+    companyId?: string | null
     name?: string | null
     lastSeen?: Date | string | null
     createdAt?: Date | string
@@ -20573,10 +20943,12 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     evolutionInstance?: EvolutionInstanceUpdateOneWithoutDeviceNestedInput
+    company?: CompanyUpdateOneWithoutDevicesNestedInput
   }
 
   export type DeviceUncheckedUpdateWithoutCallsInput = {
     id?: StringFieldUpdateOperationsInput | string
+    companyId?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     lastSeen?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -20681,9 +21053,13 @@ export namespace Prisma {
     cnpj?: string | null
     address?: string | null
     billingEmail?: string | null
+    plan?: string
+    maxInstances?: number
+    expiresAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserCreateNestedManyWithoutCompanyInput
+    devices?: DeviceCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutInstancesInput = {
@@ -20692,9 +21068,13 @@ export namespace Prisma {
     cnpj?: string | null
     address?: string | null
     billingEmail?: string | null
+    plan?: string
+    maxInstances?: number
+    expiresAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     users?: UserUncheckedCreateNestedManyWithoutCompanyInput
+    devices?: DeviceUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutInstancesInput = {
@@ -20709,10 +21089,12 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     calls?: CallLogCreateNestedManyWithoutDeviceInput
+    company?: CompanyCreateNestedOneWithoutDevicesInput
   }
 
   export type DeviceUncheckedCreateWithoutEvolutionInstanceInput = {
     id: string
+    companyId?: string | null
     name?: string | null
     lastSeen?: Date | string | null
     createdAt?: Date | string
@@ -20858,9 +21240,13 @@ export namespace Prisma {
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     billingEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    plan?: StringFieldUpdateOperationsInput | string
+    maxInstances?: IntFieldUpdateOperationsInput | number
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUpdateManyWithoutCompanyNestedInput
+    devices?: DeviceUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutInstancesInput = {
@@ -20869,9 +21255,13 @@ export namespace Prisma {
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     billingEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    plan?: StringFieldUpdateOperationsInput | string
+    maxInstances?: IntFieldUpdateOperationsInput | number
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     users?: UserUncheckedUpdateManyWithoutCompanyNestedInput
+    devices?: DeviceUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type DeviceUpsertWithoutEvolutionInstanceInput = {
@@ -20892,10 +21282,12 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     calls?: CallLogUpdateManyWithoutDeviceNestedInput
+    company?: CompanyUpdateOneWithoutDevicesNestedInput
   }
 
   export type DeviceUncheckedUpdateWithoutEvolutionInstanceInput = {
     id?: StringFieldUpdateOperationsInput | string
+    companyId?: NullableStringFieldUpdateOperationsInput | string | null
     name?: NullableStringFieldUpdateOperationsInput | string | null
     lastSeen?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -22091,6 +22483,35 @@ export namespace Prisma {
     data: EvolutionInstanceCreateManyCompanyInput | EvolutionInstanceCreateManyCompanyInput[]
   }
 
+  export type DeviceCreateWithoutCompanyInput = {
+    id: string
+    name?: string | null
+    lastSeen?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    calls?: CallLogCreateNestedManyWithoutDeviceInput
+    evolutionInstance?: EvolutionInstanceCreateNestedOneWithoutDeviceInput
+  }
+
+  export type DeviceUncheckedCreateWithoutCompanyInput = {
+    id: string
+    name?: string | null
+    lastSeen?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    calls?: CallLogUncheckedCreateNestedManyWithoutDeviceInput
+    evolutionInstance?: EvolutionInstanceUncheckedCreateNestedOneWithoutDeviceInput
+  }
+
+  export type DeviceCreateOrConnectWithoutCompanyInput = {
+    where: DeviceWhereUniqueInput
+    create: XOR<DeviceCreateWithoutCompanyInput, DeviceUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type DeviceCreateManyCompanyInputEnvelope = {
+    data: DeviceCreateManyCompanyInput | DeviceCreateManyCompanyInput[]
+  }
+
   export type UserUpsertWithWhereUniqueWithoutCompanyInput = {
     where: UserWhereUniqueInput
     update: XOR<UserUpdateWithoutCompanyInput, UserUncheckedUpdateWithoutCompanyInput>
@@ -22154,15 +22575,47 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"EvolutionInstance"> | Date | string
   }
 
+  export type DeviceUpsertWithWhereUniqueWithoutCompanyInput = {
+    where: DeviceWhereUniqueInput
+    update: XOR<DeviceUpdateWithoutCompanyInput, DeviceUncheckedUpdateWithoutCompanyInput>
+    create: XOR<DeviceCreateWithoutCompanyInput, DeviceUncheckedCreateWithoutCompanyInput>
+  }
+
+  export type DeviceUpdateWithWhereUniqueWithoutCompanyInput = {
+    where: DeviceWhereUniqueInput
+    data: XOR<DeviceUpdateWithoutCompanyInput, DeviceUncheckedUpdateWithoutCompanyInput>
+  }
+
+  export type DeviceUpdateManyWithWhereWithoutCompanyInput = {
+    where: DeviceScalarWhereInput
+    data: XOR<DeviceUpdateManyMutationInput, DeviceUncheckedUpdateManyWithoutCompanyInput>
+  }
+
+  export type DeviceScalarWhereInput = {
+    AND?: DeviceScalarWhereInput | DeviceScalarWhereInput[]
+    OR?: DeviceScalarWhereInput[]
+    NOT?: DeviceScalarWhereInput | DeviceScalarWhereInput[]
+    id?: StringFilter<"Device"> | string
+    companyId?: StringNullableFilter<"Device"> | string | null
+    name?: StringNullableFilter<"Device"> | string | null
+    lastSeen?: DateTimeNullableFilter<"Device"> | Date | string | null
+    createdAt?: DateTimeFilter<"Device"> | Date | string
+    updatedAt?: DateTimeFilter<"Device"> | Date | string
+  }
+
   export type CompanyCreateWithoutUsersInput = {
     id?: string
     name: string
     cnpj?: string | null
     address?: string | null
     billingEmail?: string | null
+    plan?: string
+    maxInstances?: number
+    expiresAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     instances?: EvolutionInstanceCreateNestedManyWithoutCompanyInput
+    devices?: DeviceCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyUncheckedCreateWithoutUsersInput = {
@@ -22171,9 +22624,13 @@ export namespace Prisma {
     cnpj?: string | null
     address?: string | null
     billingEmail?: string | null
+    plan?: string
+    maxInstances?: number
+    expiresAt?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     instances?: EvolutionInstanceUncheckedCreateNestedManyWithoutCompanyInput
+    devices?: DeviceUncheckedCreateNestedManyWithoutCompanyInput
   }
 
   export type CompanyCreateOrConnectWithoutUsersInput = {
@@ -22198,9 +22655,13 @@ export namespace Prisma {
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     billingEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    plan?: StringFieldUpdateOperationsInput | string
+    maxInstances?: IntFieldUpdateOperationsInput | number
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     instances?: EvolutionInstanceUpdateManyWithoutCompanyNestedInput
+    devices?: DeviceUpdateManyWithoutCompanyNestedInput
   }
 
   export type CompanyUncheckedUpdateWithoutUsersInput = {
@@ -22209,9 +22670,13 @@ export namespace Prisma {
     cnpj?: NullableStringFieldUpdateOperationsInput | string | null
     address?: NullableStringFieldUpdateOperationsInput | string | null
     billingEmail?: NullableStringFieldUpdateOperationsInput | string | null
+    plan?: StringFieldUpdateOperationsInput | string
+    maxInstances?: IntFieldUpdateOperationsInput | number
+    expiresAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     instances?: EvolutionInstanceUncheckedUpdateManyWithoutCompanyNestedInput
+    devices?: DeviceUncheckedUpdateManyWithoutCompanyNestedInput
   }
 
   export type CallLogCreateManyDeviceInput = {
@@ -22595,6 +23060,14 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type DeviceCreateManyCompanyInput = {
+    id: string
+    name?: string | null
+    lastSeen?: Date | string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type UserUpdateWithoutCompanyInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
@@ -22668,6 +23141,34 @@ export namespace Prisma {
     endpointUrl?: NullableStringFieldUpdateOperationsInput | string | null
     webhookSecret?: NullableStringFieldUpdateOperationsInput | string | null
     deviceId?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type DeviceUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSeen?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    calls?: CallLogUpdateManyWithoutDeviceNestedInput
+    evolutionInstance?: EvolutionInstanceUpdateOneWithoutDeviceNestedInput
+  }
+
+  export type DeviceUncheckedUpdateWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSeen?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    calls?: CallLogUncheckedUpdateManyWithoutDeviceNestedInput
+    evolutionInstance?: EvolutionInstanceUncheckedUpdateOneWithoutDeviceNestedInput
+  }
+
+  export type DeviceUncheckedUpdateManyWithoutCompanyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: NullableStringFieldUpdateOperationsInput | string | null
+    lastSeen?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

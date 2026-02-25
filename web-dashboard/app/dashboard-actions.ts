@@ -3,18 +3,25 @@
 import { prisma } from '@/lib/prisma';
 import { startOfDay, endOfDay } from 'date-fns';
 import { DashboardData, KPIData, MetricWithInstance } from '@/lib/types';
+import { getCurrentUser } from '@/lib/auth-helpers';
 
 export async function getDashboardData(date?: Date): Promise<DashboardData> {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('Não autorizado');
+
     const targetDate = date || new Date();
     const start = startOfDay(targetDate);
     const end = endOfDay(targetDate);
 
-    // Busca métricas do dia por instância
+    // Busca métricas do dia por instância (Filtrado por Empresa)
     const dailyMetrics = await prisma.dailyMetric.findMany({
         where: {
             date: {
                 gte: start,
                 lte: end
+            },
+            instance: {
+                companyId: user.companyId
             }
         },
         include: {
@@ -48,12 +55,15 @@ export async function getDashboardData(date?: Date): Promise<DashboardData> {
         newContacts: acc.newContacts + curr.newContacts,
     }), initialTotals);
 
-    // Busca atividade por hora (Mensagens e Chamadas)
+    // Busca atividade por hora (Filtrado por Empresa)
     const processedMessages = await prisma.processedMessage.findMany({
         where: {
             timestamp: {
                 gte: start,
                 lte: end
+            },
+            instance: {
+                companyId: user.companyId
             }
         },
         select: {
@@ -67,6 +77,11 @@ export async function getDashboardData(date?: Date): Promise<DashboardData> {
             timestamp: {
                 gte: start,
                 lte: end
+            },
+            device: {
+                evolutionInstance: {
+                    companyId: user.companyId
+                }
             }
         },
         include: {

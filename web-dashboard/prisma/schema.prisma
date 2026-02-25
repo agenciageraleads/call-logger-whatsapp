@@ -11,12 +11,14 @@ datasource db {
 
 model Device {
   id                String             @id
+  companyId         String?            // Opcional para devices genéricos, mas recomendado para multi-tenant
   name              String?
   lastSeen          DateTime?
   createdAt         DateTime           @default(now())
   updatedAt         DateTime           @updatedAt
   calls             CallLog[]
   evolutionInstance EvolutionInstance?
+  company           Company?           @relation(fields: [companyId], references: [id], onDelete: Cascade)
 }
 
 model CallLog {
@@ -171,10 +173,14 @@ model Company {
   cnpj         String?
   address      String?
   billingEmail String?
+  plan         String   @default("BRONZE") // BRONZE, SILVER, GOLD
+  maxInstances Int      @default(3)
+  expiresAt    DateTime?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
   users        User[]
   instances    EvolutionInstance[]
+  devices      Device[]
 }
 
 model User {
@@ -183,7 +189,7 @@ model User {
   name      String
   email     String   @unique
   password  String
-  role      String   @default("USER") // ADMIN, MANAGER, USER
+  role      String   @default("USER") // SUPER_ADMIN, ADMIN, MANAGER, USER
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)

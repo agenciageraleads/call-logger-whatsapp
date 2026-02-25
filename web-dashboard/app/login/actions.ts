@@ -29,7 +29,9 @@ export async function loginAction(formData: FormData) {
         }
 
         // Criar o Cookie Seguro (1 dia)
-        cookies().set('admin_session', user.id, {
+        const cookieStore = await cookies();
+
+        cookieStore.set('admin_session', user.id, {
             path: '/',
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -37,7 +39,15 @@ export async function loginAction(formData: FormData) {
             sameSite: 'lax'
         });
 
-        return { success: true };
+        // Cookie de conveniência para o middleware (opcional, mas ajuda no roteamento)
+        cookieStore.set('user_role', user.role, {
+            path: '/',
+            httpOnly: false, // Permitido ler no middleware
+            maxAge: 60 * 60 * 24,
+            sameSite: 'lax'
+        });
+
+        return { success: true, role: user.role };
 
     } catch (e) {
         console.error("Login Error:", e);
@@ -46,6 +56,8 @@ export async function loginAction(formData: FormData) {
 }
 
 export async function logoutAction() {
-    cookies().delete('admin_session');
+    const cookieStore = await cookies();
+    cookieStore.delete('admin_session');
+    cookieStore.delete('user_role');
     return { success: true };
 }

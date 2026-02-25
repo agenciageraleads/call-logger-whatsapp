@@ -22,7 +22,11 @@ export default function LoginPage() {
             setError(res.error);
             setIsLoading(false);
         } else if (res?.success) {
-            router.push('/');
+            if (res.role === 'SUPER_ADMIN') {
+                router.push('/master');
+            } else {
+                router.push('/');
+            }
         }
     };
 
