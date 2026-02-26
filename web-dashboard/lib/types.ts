@@ -53,11 +53,12 @@ export interface SettingsPageClientProps {
     initialDevices: DeviceWithInstance[];
     createInstance: (formData: FormData) => Promise<{ success: boolean }>;
     linkDeviceToInstance: (instanceId: string, deviceId: string) => Promise<{ success: boolean }>;
-    provisionEvolutionInstance: (evolutionInstanceDbId: string) => Promise<{
+    provisionEvolutionInstance: (evolutionInstanceDbId: string, frontendUrl?: string) => Promise<{
         success: boolean;
         connect?: { qrcode: { base64: string } } | string | null;
         warnings?: string[];
     }>;
+    checkInstanceConnectionState: (instanceId: string) => Promise<{ success: boolean, state: string }>;
     unlinkDevice: (instanceId: string) => Promise<{ success: boolean }>;
     logoutInstance: (instanceId: string) => Promise<{ success: boolean }>;
     deleteInstance: (instanceId: string) => Promise<{ success: boolean }>;

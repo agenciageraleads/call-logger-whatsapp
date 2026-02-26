@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, useState, useTransition } from 'react';
+import { Fragment, useState, useTransition, useEffect } from 'react';
 import { ChevronLeft } from 'lucide-react';
 import Link from 'next/link';
 import { SettingsPageClientProps, InstanceWithDevice } from '@/lib/types';
@@ -17,7 +17,8 @@ export default function SettingsPageClient({
     provisionEvolutionInstance,
     unlinkDevice,
     logoutInstance,
-    deleteInstance
+    deleteInstance,
+    checkInstanceConnectionState
 }: SettingsPageClientProps) {
     // Usamos as props diretamente para garantir reatividade total com o servidor após revalidatePath
     const instances = initialInstances;
@@ -27,6 +28,16 @@ export default function SettingsPageClient({
     const [showAddModal, setShowAddModal] = useState(false);
     const [qrByInstanceId, setQrByInstanceId] = useState<Record<string, { qrcode: { base64: string } } | string | null>>({});
     const [error, setError] = useState<string | null>(null);
+    const [connectionStates, setConnectionStates] = useState<Record<string, string>>({});
+
+    useEffect(() => {
+        instances.forEach(async (inst) => {
+            const res = await checkInstanceConnectionState(inst.id);
+            if (res?.success) {
+                setConnectionStates(prev => ({ ...prev, [inst.id]: res.state }));
+            }
+        });
+    }, [instances, checkInstanceConnectionState]);
 
     async function handleLink(instanceId: string, deviceId: string) {
         if (confirm(t('settings.confirm.link'))) {
@@ -64,6 +75,7 @@ export default function SettingsPageClient({
                         delete next[instanceId];
                         return next;
                     });
+                    setConnectionStates(prev => ({ ...prev, [instanceId]: 'disconnected' }));
                 } catch (e: unknown) {
                     setError((e as Error)?.message || String(e));
                 }
@@ -92,11 +104,17 @@ export default function SettingsPageClient({
         startTransition(async () => {
             setError(null);
             try {
-                const res = await provisionEvolutionInstance(instanceDbId);
+                const res = await provisionEvolutionInstance(instanceDbId, window.location.origin);
                 const connect = res?.connect;
                 setQrByInstanceId((prev) => ({ ...prev, [instanceDbId]: connect || null }));
                 if (Array.isArray(res?.warnings) && res.warnings.length > 0) {
                     setError(res.warnings.join(' '));
+                }
+
+                // Atualiza o state local caso dê certo
+                const stateRes = await checkInstanceConnectionState(instanceDbId);
+                if (stateRes?.success) {
+                    setConnectionStates(prev => ({ ...prev, [instanceDbId]: stateRes.state }));
                 }
             } catch (e: unknown) {
                 setError((e as Error)?.message || String(e));
@@ -231,6 +249,7 @@ export default function SettingsPageClient({
                                 <th className="px-6 py-4">{t('settings.instTable.whatsapp')}</th>
                                 <th className="px-6 py-4">{t('settings.instTable.phone')}</th>
                                 <th className="px-6 py-4">{t('settings.instTable.evolutionId')}</th>
+                                <th className="px-6 py-4">Status</th>
                                 <th className="px-6 py-4">{t('settings.instTable.deviceLinked')}</th>
                                 <th className="px-6 py-4 text-right">{t('settings.instTable.actions')}</th>
                             </tr>
@@ -244,6 +263,24 @@ export default function SettingsPageClient({
                                             {inst.phoneNumber || '-'}
                                         </td>
                                         <td className="px-6 py-4 font-mono text-xs text-gray-500">{inst.instanceId}</td>
+                                        <td className="px-6 py-4">
+                                            {connectionStates[inst.id] === 'open' ? (
+                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400 border border-green-200">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                                                    Conectado
+                                                </span>
+                                            ) : connectionStates[inst.id] === 'connecting' ? (
+                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-yellow-50 text-yellow-700 dark:bg-yellow-500/10 dark:text-yellow-400 border border-yellow-200">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse"></span>
+                                                    Conectando
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-600 dark:bg-zinc-800 dark:text-slate-400 border border-slate-200">
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                                    Desconectado
+                                                </span>
+                                            )}
+                                        </td>
                                         <td className="px-6 py-4">
                                             {inst.device ? (
                                                 <div className="flex items-center gap-2">
@@ -316,7 +353,7 @@ export default function SettingsPageClient({
                                         if (status === 'open') {
                                             return (
                                                 <tr>
-                                                    <td colSpan={5} className="px-6 py-4 bg-green-50 dark:bg-green-900/10">
+                                                    <td colSpan={6} className="px-6 py-4 bg-green-50 dark:bg-green-900/10">
                                                         <div className="flex items-center gap-2 text-green-700 dark:text-green-400 font-bold">
                                                             <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
                                                             CONECTADO: WhatsApp vinculado com sucesso à instância {inst.name}!
@@ -331,7 +368,7 @@ export default function SettingsPageClient({
                                         const base64Content = qrcode.base64;
                                         return (
                                             <tr>
-                                                <td colSpan={5} className="px-6 py-4 bg-gray-50 dark:bg-zinc-900/30">
+                                                <td colSpan={6} className="px-6 py-4 bg-gray-50 dark:bg-zinc-900/30">
                                                     <div className="flex items-center gap-6">
                                                         <div className="text-sm text-gray-600 dark:text-gray-300">
                                                             {t('settings.instTable.qrCodeFor')} <span className="font-semibold">{inst.name}</span>
@@ -354,7 +391,7 @@ export default function SettingsPageClient({
                             ))}
                             {instances.length === 0 && (
                                 <tr>
-                                    <td colSpan={5} className="px-6 py-12 text-center text-gray-500">
+                                    <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
                                         {t('settings.instTable.noInstances')}
                                     </td>
                                 </tr>

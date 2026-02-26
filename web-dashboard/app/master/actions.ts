@@ -66,6 +66,43 @@ export async function createCompanyWithAdminAction(data: {
     return { success: true, company };
 }
 
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+
+export async function impersonateCompanyAction(companyId: string) {
+    const adminUser = await prisma.user.findFirst({
+        where: {
+            companyId: companyId,
+            role: 'ADMIN' // Ou qualquer role que permita acesso ao dashboard da empresa
+        }
+    });
+
+    if (!adminUser) {
+        throw new Error('Nenhum usuário administrador encontrado para esta empresa.');
+    }
+
+    const cookieStore = await cookies();
+
+    // Substitui a sessão atual pela sessão do admin da empresa cliente
+    cookieStore.set('admin_session', adminUser.id, {
+        path: '/',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 60 * 60 * 24, // 1 dia
+        sameSite: 'lax'
+    });
+
+    cookieStore.set('user_role', adminUser.role, {
+        path: '/',
+        httpOnly: false,
+        maxAge: 60 * 60 * 24,
+        sameSite: 'lax'
+    });
+
+    // Redireciona para o dashboard do cliente
+    redirect('/');
+}
+
 export async function deleteCompanyAction(id: string) {
     await prisma.company.delete({
         where: { id }

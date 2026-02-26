@@ -192,7 +192,7 @@ export async function deleteInstance(evolutionInstanceDbId: string) {
     return { success: true };
 }
 
-export async function provisionEvolutionInstance(evolutionInstanceDbId: string) {
+export async function provisionEvolutionInstance(evolutionInstanceDbId: string, frontendUrl?: string) {
     const user = await getCurrentUser();
     if (!user) throw new Error('Não autorizado');
 
@@ -216,7 +216,7 @@ export async function provisionEvolutionInstance(evolutionInstanceDbId: string) 
             data: { webhookSecret: newWebhookSecret() },
         });
 
-    const baseUrl = process.env.WEBHOOK_PUBLIC_BASE_URL;
+    const baseUrl = frontendUrl || process.env.WEBHOOK_PUBLIC_BASE_URL;
     const warnings: string[] = [];
     const webhookUrl = baseUrl ? `${baseUrl.replace(/\/+$/, '')}/api/webhooks/evolution` : '';
 
@@ -247,4 +247,36 @@ export async function provisionEvolutionInstance(evolutionInstanceDbId: string) 
 
     revalidatePath('/settings');
     return { success: true, connect, warnings };
+}
+
+export async function checkInstanceConnectionState(evolutionInstanceDbId: string) {
+    const user = await getCurrentUser();
+    if (!user) throw new Error('Não autorizado');
+
+    const instance = await prisma.evolutionInstance.findFirst({
+        where: { id: evolutionInstanceDbId, companyId: user.companyId }
+    });
+
+    if (!instance) {
+        return { success: false, state: 'disconnected' };
+    }
+
+    const endpointUrl = instance.endpointUrl || process.env.EVOLUTION_SERVER_URL || '';
+    const apiKey = instance.apiKey || process.env.EVOLUTION_API_KEY || '';
+
+    if (!endpointUrl || !apiKey) {
+        return { success: false, state: 'disconnected' };
+    }
+
+    try {
+        const { getEvolutionConnectionState } = await import('@/lib/evolution');
+        const stateData = await getEvolutionConnectionState({
+            endpointUrl,
+            apiKey,
+            instanceName: instance.instanceId,
+        });
+        return { success: true, state: stateData.state };
+    } catch (e) {
+        return { success: false, state: 'disconnected' };
+    }
 }

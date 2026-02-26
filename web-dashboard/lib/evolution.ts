@@ -155,3 +155,29 @@ export async function deleteEvolutionInstance(args: {
   return await resp.json().catch(() => ({}));
 }
 
+export async function getEvolutionConnectionState(args: {
+  endpointUrl: string;
+  apiKey: string;
+  instanceName: string;
+}) {
+  const base = stripTrailingSlashes(args.endpointUrl);
+  const url = `${base}/instance/connectionState/${encodeURIComponent(args.instanceName)}`;
+
+  const resp = await fetch(url, {
+    method: "GET",
+    headers: {
+      apikey: args.apiKey,
+    },
+  });
+
+  if (!resp.ok) {
+    // Pode retornar 404 se não existir na Evolution
+    return { state: 'disconnected' };
+  }
+
+  const data = await resp.json().catch(() => ({}));
+  if (data?.instance?.state) {
+    return { state: data.instance.state }; // Ex: 'open', 'close', 'connecting'
+  }
+  return { state: 'disconnected' };
+}
