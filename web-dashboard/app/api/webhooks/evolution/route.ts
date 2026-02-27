@@ -107,6 +107,7 @@ export async function POST(req: Request) {
 
     for (const [dayMs, msgs] of groups.entries()) {
       const day = new Date(dayMs);
+      const crmLeadsToProcess: { jid: string, content: string, fromMe: boolean }[] = [];
 
       const outcome = await prisma.$transaction(async (tx) => {
         let sentCount = 0;
@@ -191,10 +192,10 @@ export async function POST(req: Request) {
             "";
 
           if (messageContent) {
-            // Enfileira a mensagem no Batch. O trigger avalia internamente a necessidade de chamar a IA
-            queueAndProcessLeadMessage(evolutionInstance.id, String(remoteJid), messageContent, fromMe).catch(err =>
-              console.error('Erro ao acionar enfileiramento do Lead:', err)
-            );
+            // Guarda na fila em memória temporária. Somente após a transcrição estar com "commit",
+            // acionaremos a fila para que a query do queueAndProcess (que não transita na tx atual)
+            // enxergue o novo Contact criado acima.
+            crmLeadsToProcess.push({ jid: String(remoteJid), content: messageContent, fromMe });
           }
           // --- Fim da Evolução CRM ---
         }
@@ -228,6 +229,13 @@ export async function POST(req: Request) {
 
         return { processed: sentCount + receivedCount, sentCount, receivedCount, newContacts, newConversations, day };
       });
+
+      // Agora que a transação foi salva, os Contacts existem no DB global
+      for (const lead of crmLeadsToProcess) {
+        queueAndProcessLeadMessage(evolutionInstance.id, lead.jid, lead.content, lead.fromMe).catch(err =>
+          console.error('Erro ao acionar enfileiramento do Lead (Pós-Transaction):', err)
+        );
+      }
 
       results.push(outcome);
     }
