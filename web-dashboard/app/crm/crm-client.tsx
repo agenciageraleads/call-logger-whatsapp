@@ -154,6 +154,15 @@ export default function CRMClient({ initialData, insights }: CRMClientProps) {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-4">
+                    <Link
+                        href="/contacts"
+                        className="group flex items-center gap-2 px-4 py-2 bg-white text-slate-600 border border-slate-200 rounded-xl text-sm font-bold hover:bg-slate-50 transition-all shadow-sm active:scale-95"
+                        aria-label="Ver Contatos"
+                    >
+                        <Users size={16} />
+                        <span className="hidden md:inline">Contatos</span>
+                    </Link>
+
                     <button
                         onClick={handleLogout}
                         className="group flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 border border-red-100 rounded-xl text-sm font-bold hover:bg-red-100 transition-all shadow-sm active:scale-95"

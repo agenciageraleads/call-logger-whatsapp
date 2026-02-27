@@ -54,4 +54,29 @@ Embora tivéssemos etapas futuras desenhadas para exportações de CSV e relató
 Colocar a aplicação na mão do primeiro grupo de gestores para coletar feedback real. Funcionalidades como "Modo Offline no App" ou "Agrupamento de Gráficos" serão trabalhadas estritamente com base na dor real relatada pelos primeiros usuários reais.
 
 ---
-*Escrito às 20h pelo Antigravity.*
+---
+
+## Data: 27 de Fevereiro de 2026
+
+### 🎯 Objetivo do Dia
+
+Implementar a visualização centralizada de contatos e resolver problemas de processamento de leads no servidor de produção.
+
+### 🛠️ Atividades Realizadas
+
+#### 1. Correção de Webhook (Race Condition)
+
+- **Problema:** Mensagens chegavam, mas os Leads não eram criados no Kanban.
+- **Causa:** Race condition na transação do Prisma. O contato era criado na transação, mas a lógica de análise (`queueAndProcessLeadMessage`) rodava em paralelo e não "enxergava" o contato ainda não commitado.
+- **Solução:** Refatoramos o handler de webhook para enfileirar o processamento de leads **após** o commit da transação do banco de dados.
+
+#### 2. Implementação da Tela de Contatos (`/contacts`)
+
+- Criamos uma interface premium inspirada no Chatwoot para gestão de clientes.
+- **Destaques:**
+  - Tabela paginada com busca integrada.
+  - **Sidebar de Detalhes:** Slide-over que permite ver histórico de mensagens, notas do vendedor e resumo de IA sem sair da lista.
+  - Integração de navegação no Dashboard e no CRM.
+
+---
+*Escrito às 16h pelo Antigravity.*
